@@ -7,6 +7,9 @@ OBJ_DIR=$(ROOT_PRJ)/obj
 CFG_DIR=$(ROOT_PRJ)/cfg
 SRC_DIR=$(ROOT_PRJ)/src
 INC_DIR=$(ROOT_PRJ)/inc
+LOG_DIR=$(ROOT_PRJ)/log
+
+FOLDER=$(BIN_DIR) $(OBJ_DIR) $(LOG_DIR) $(LOG_DIR)
 
 #FILE
 BIN_FILE=$(BIN_DIR)/dhcpServerApp.bin
@@ -23,23 +26,26 @@ LIB= -lpthread -lsqlite3
 FLAGs=-g
 
 #TARGET
-all: folder $(OBJs)
+all: .folderAdd $(OBJs)
 	$(CC) $(FLAGs) $(OBJs) -o $(BIN_FILE) $(LIB) 
-	@echo "Build is done..."
+	@echo "Building is done..."
 
 
-clean:
-	@rm -rf $(BIN_DIR)
-	@rm -rf $(OBJ_DIR)
+clean:.folderDel
 	@echo "Clean is complete..."
 
+run:
+	@echo "Start DHCP server..."
+	./$(BIN_FILE) ../cfg/dhcp_server.conf
 
-folder:
-	@mkdir -p $(BIN_DIR) $(OBJ_DIR)
+.folderAdd:
+	@mkdir -p $(FOLDER)
 
+.folderDel:
+	@rm -rf $(FOLDER)
 
 $(OBJ_DIR)/%.o:$(SRC_DIR)/%.c
-	$(CC) -MD -MF $(patsubst %.o,%.d,$@) -c $(FLAGs) -I$(INC_DIR) -o  $@  $<
+	@$(CC) -MD -MF $(patsubst %.o,%.d,$@) -c $(FLAGs) -I$(INC_DIR) -o  $@  $<
 #dhcp_server: server.o packet.o log.o ip_allocator.o
 #	$(CC) -lpthread -lsqlite3 -g -o dhcp_server server.o packet.o log.o ip_allocator.o
 #
