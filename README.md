@@ -1,4 +1,4 @@
 dhcpClientApp
 =============
 
-DHCP Client application cross platform
+DHCP Server application cross platform
