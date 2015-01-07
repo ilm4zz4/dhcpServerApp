@@ -10,7 +10,7 @@ To run "the new" DHCP server application follow the next step:
  - Download the progect from develop branch
  - From makefile folder run: make 
  - With super user privilege run from bin folder: ./dhcpServerApp.bin ../cfg/dhcp_log.conf  ../cfg/dhcp_server.conf 
- 
+ - Into log folder is going to create the log file. 
 
 
 
