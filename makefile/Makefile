@@ -9,7 +9,7 @@ SRC_DIR=$(ROOT_PRJ)/src
 INC_DIR=$(ROOT_PRJ)/inc
 LOG_DIR=$(ROOT_PRJ)/log
 LIB_DIR=$(ROOT_PRJ)/lib
-
+GTEST_FOLDER=$(ROOT_PRJ)/test/googletest/
 FOLDER=$(BIN_DIR) $(OBJ_DIR) $(LOG_DIR) $(LOG_DIR) $(LIB_DIR)
 
 #FILE
@@ -36,7 +36,7 @@ all: .folderAdd $(OBJs)
 clean:.folderDel
 	@echo "Clean is complete..."
 
-test: $(LIB_TEST)
+test: .folderAdd $(LIB_TEST)
 
 
 
@@ -50,8 +50,8 @@ test: $(LIB_TEST)
 $(OBJ_DIR)/%.o:$(SRC_DIR)/%.c
 	@$(CC) -MD -MF $(patsubst %.o,%.d,$@) -c $(FLAGs) -I$(INC_DIR) -o  $@  $<
 
-$(LIB_DIR)/libgtest.a:
-	cmake ../test/googletest/
+$(LIB_TEST):
+	$(shell cd $(GTEST_FOLDER) && cmake . && cd $(ROOT_FOLDER)/makefile)
 	@make -C ../test/googletest/
 	@mkdir -p ../lib
 	@cp -f  ../test/googletest/libgtest.a ../lib
