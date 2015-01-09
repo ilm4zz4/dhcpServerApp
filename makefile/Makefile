@@ -1,4 +1,4 @@
-#Makefile to compile 'dhcpServerApp'  -MM -MF $(patsubst %.o,%.d,$@) 
+#Makefile to compile 'dhcpServerApp' 
 
 #FOLDER
 ROOT_PRJ=..
