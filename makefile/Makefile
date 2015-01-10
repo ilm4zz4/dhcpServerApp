@@ -1,7 +1,7 @@
 #Makefile to compile 'dhcpServerApp' 
 
 #FOLDER
-ROOT_PRJ=..
+ROOT_PRJ=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))/..
 BIN_DIR=$(ROOT_PRJ)/bin
 OBJ_DIR=$(ROOT_PRJ)/obj
 CFG_DIR=$(ROOT_PRJ)/cfg
@@ -40,8 +40,6 @@ clean:.folderDel .generateFileDel
 test: .folderAdd $(LIB_TEST)
 
 
-
-
 .folderAdd:
 	@mkdir -p $(FOLDER)
 
@@ -59,7 +57,5 @@ $(OBJ_DIR)/%.o:$(SRC_DIR)/%.c
 	@$(CC) -MD -MF $(patsubst %.o,%.d,$@) -c $(FLAGs) -I$(INC_DIR) -o  $@  $<
 
 $(LIB_TEST):
-	$(shell cd $(GTEST_FOLDER) && cmake . && cd $(ROOT_FOLDER)/makefile)
-	@make -C ../test/googletest/
-	@mkdir -p ../lib
-	@cp -f  ../test/googletest/libgtest.a ../lib
+	bash -c 'cd $(GTEST_FOLDER) &&  cmake . && make' 
+	cp $(GTEST_FOLDER)/libgtest.a $(LIB_TEST) 
