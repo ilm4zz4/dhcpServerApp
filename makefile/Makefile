@@ -9,7 +9,8 @@ SRC_DIR=$(ROOT_PRJ)/src
 INC_DIR=$(ROOT_PRJ)/inc
 LOG_DIR=$(ROOT_PRJ)/log
 LIB_DIR=$(ROOT_PRJ)/lib
-GTEST_FOLDER=$(ROOT_PRJ)/test/googletest/
+
+GTEST_FOLDER=$(ROOT_PRJ)/test/googletest
 FOLDER=$(BIN_DIR) $(OBJ_DIR) $(LOG_DIR) $(LOG_DIR) $(LIB_DIR)
 
 #FILE
@@ -33,7 +34,7 @@ all: .folderAdd $(OBJs)
 	@echo "Building is done..."
 
 
-clean:.folderDel
+clean:.folderDel .generateFileDel
 	@echo "Clean is complete..."
 
 test: .folderAdd $(LIB_TEST)
@@ -46,6 +47,13 @@ test: .folderAdd $(LIB_TEST)
 
 .folderDel:
 	@rm -rf $(FOLDER)
+.generateFileDel:
+	@rm -rf $(GTEST_FOLDER)/CMakeCache.txt
+	@rm -rf $(GTEST_FOLDER)/CMakeFiles/
+	@rm -rf $(GTEST_FOLDER)/Makefile
+	@rm -rf $(GTEST_FOLDER)/cmake_install.cmake
+	@rm -rf $(GTEST_FOLDER)/libgtest.a
+	@rm -rf $(GTEST_FOLDER)/libgtest_main.a
 
 $(OBJ_DIR)/%.o:$(SRC_DIR)/%.c
 	@$(CC) -MD -MF $(patsubst %.o,%.d,$@) -c $(FLAGs) -I$(INC_DIR) -o  $@  $<
