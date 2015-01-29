@@ -23,7 +23,7 @@ struct dhcp_packet_handler gobal_packet_handler =
 
 int ip_asc2bytes(char bytes[], char* ip_address)
 {
-	INFO("==>ip_asc2bytes, ip_address=%s", ip_address);
+	DEBUG("==>ip_asc2bytes, ip_address=%s", ip_address);
 
     if(NULL == ip_address || strlen(ip_address) > 15 || strlen(ip_address) < 7)
     {
