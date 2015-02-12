@@ -23,7 +23,8 @@ OBJs+=$(OBJ_DIR)/ip_allocator.o
 
 #LIBRARY
 LIB_SYS= -lpthread -lsqlite3 
-LIB_TEST=$(LIB_DIR)/libgtest.a
+LIB_TEST+=$(LIB_DIR)/libgtest.a
+LIB_TEST+=$(LIB_DIR)/libgtest_main.a
 
 #FLAGs
 FLAGs=-g
@@ -58,4 +59,7 @@ $(OBJ_DIR)/%.o:$(SRC_DIR)/%.c
 
 $(LIB_TEST):
 	bash -c 'cd $(GTEST_FOLDER) &&  cmake . && make' 
-	cp $(GTEST_FOLDER)/libgtest.a $(LIB_TEST) 
+	@echo "lib libgtest.a and libgtest_main.a are copied into lib folder"
+	@cp $(GTEST_FOLDER)/libgtest.a $(LIB_DIR) 
+	@cp $(GTEST_FOLDER)/libgtest_main.a $(LIB_DIR) 
+
