@@ -23,14 +23,15 @@ OBJs+=$(OBJ_DIR)/ip_allocator.o
 
 #LIBRARY
 LIB_SYS= -lpthread -lsqlite3 
-LIB_TEST=$(LIB_DIR)/libgtest.a
+LIB_TEST+=$(LIB_DIR)/libgtest.a
+LIB_TEST+=$(LIB_DIR)/libgtest_main.a
 
 #FLAGs
 FLAGs=-g
 
 #TARGET
 all: .folderAdd $(OBJs)
-	$(CC) $(FLAGs) $(OBJs) -o $(BIN_FILE) $(LIB_SYS) 
+	$(CXX) $(FLAGs) $(OBJs) -o $(BIN_FILE) $(LIB_SYS) 
 	@echo "Building is done..."
 
 
@@ -38,7 +39,7 @@ clean:.folderDel .generateFileDel
 	@echo "Clean is complete..."
 
 test: .folderAdd $(LIB_TEST)
-
+	$(CXX) ../test/src/gtest-all.cc -I $(GTEST_FOLDER)/include/ -L $(LIB_DIR) -lgtest -lgtest_main -lpthread -o ../bin/test.bim
 
 .folderAdd:
 	@mkdir -p $(FOLDER)
@@ -58,4 +59,7 @@ $(OBJ_DIR)/%.o:$(SRC_DIR)/%.c
 
 $(LIB_TEST):
 	bash -c 'cd $(GTEST_FOLDER) &&  cmake . && make' 
-	cp $(GTEST_FOLDER)/libgtest.a $(LIB_TEST) 
+	@echo "lib libgtest.a and libgtest_main.a are copied into lib folder"
+	@cp $(GTEST_FOLDER)/libgtest.a $(LIB_DIR) 
+	@cp $(GTEST_FOLDER)/libgtest_main.a $(LIB_DIR) 
+
