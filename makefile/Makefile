@@ -31,7 +31,7 @@ FLAGs=-g
 
 #TARGET
 all: .folderAdd $(OBJs)
-	$(CXX) $(FLAGs) $(OBJs) -o $(BIN_FILE) $(LIB_SYS) 
+	$(CC) $(FLAGs) -I$(INC_DIR) $(OBJs) ../src/main.c  -o $(BIN_FILE) $(LIB_SYS) 
 	@echo "Building is done..."
 
 
@@ -39,7 +39,7 @@ clean:.folderDel .generateFileDel
 	@echo "Clean is complete..."
 
 test: .folderAdd $(LIB_TEST)
-	$(CXX) ../test/src/gtest-all.cc -I $(GTEST_FOLDER)/include/ -L $(LIB_DIR) -lgtest -lgtest_main -lpthread -o ../bin/test.bim
+	$(CC) ../test/src/gtest-all.cc -I $(GTEST_FOLDER)/include/ -L $(LIB_DIR) -lgtest -lgtest_main -lpthread -o ../bin/test.bim
 
 .folderAdd:
 	@mkdir -p $(FOLDER)
