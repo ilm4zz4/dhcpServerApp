@@ -23,6 +23,11 @@
 
 #define LOG_FILE_NAME_PREFIX	"dhcp_log"
 
+//Start Declaration function 
+#ifdef __cplusplus /* If this is a C++ compiler, use C linkage */
+extern "C" {
+#endif
+
 struct log_config
 {
 	char log_enabled;
@@ -35,6 +40,11 @@ int log_init(char *config_file);
 void dhcp_log(char level, const char *source, const char *func, int line, char *message, ...);
 
 char * log_level_string(char log_level);
+
+#ifdef __cplusplus /* If this is a C++ compiler, end C linkage */
+}
+#endif
+//End Decalration function
 
 #define INFO(message, ...)      dhcp_log(LOG_INFO, __FILE__, __FUNCTION__, __LINE__, message, ##__VA_ARGS__)
 #define DEBUG(message, ...)     dhcp_log(LOG_DEBUG, __FILE__, __FUNCTION__, __LINE__, message, ##__VA_ARGS__)

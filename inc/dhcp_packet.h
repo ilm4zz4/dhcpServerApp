@@ -123,6 +123,10 @@
 #define DHCP_VEND_SIZE		64
 #define DHCP_MAX_MTU		1500
 
+#ifdef __cplusplus /* If this is a C++ compiler, use C linkage */
+extern "C" {
+#endif
+
 struct dhcp_option
 {
     char                code;
@@ -156,5 +160,9 @@ struct dhcp_packet *marshall(char buffer[], int offset, int length);
 void free_packet(struct dhcp_packet *packet);
 
 int serialize(struct dhcp_packet *packet, char buffer[], int length);
+
+#ifdef __cplusplus /* If this is a C++ compiler, end C linkage */
+}
+#endif
 
 #endif

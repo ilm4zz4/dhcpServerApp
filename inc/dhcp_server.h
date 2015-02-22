@@ -16,6 +16,10 @@
 #define	CONFIG_RENEW_TIME		"renew_time"
 #define CONFIG_IP_ALLOCATOR_FILE	"ip_allocator_file"
 
+#ifdef __cplusplus /* If this is a C++ compiler, use C linkage */
+extern "C" {
+#endif
+
 struct server_config
 {
 	char 		server[16];
@@ -52,6 +56,7 @@ struct dhcp_packet_handler
 	struct dhcp_packet *(*do_decline)(struct dhcp_packet *);
 };
 
+
 int ip_asc2bytes(char bytes[], char* ip_address);
 
 int start_server(char *config_file);
@@ -71,5 +76,9 @@ struct network_config
 };
 
 typedef int (*ip_allocator)(struct network_config *);
+
+#ifdef __cplusplus /* If this is a C++ compiler, end C linkage */
+}
+#endif
 
 #endif
