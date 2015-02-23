@@ -26,7 +26,7 @@ CXXFLAGS += -g -Wall -Wextra -pthread
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = sample1_unittest
+TESTS = ../bin/sample1_unittest
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -35,10 +35,10 @@ GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
 
 # House-keeping build targets.
 
-all : $(TESTS)
+all : .folder $(TESTS)
 
 clean :
-	rm -f $(TESTS) gtest.a gtest_main.a *.o
+	rm -f $(TESTS) gtest.a ../lib/gtest_main.a ../obj/*.o
 
 # Builds gtest.a and gtest_main.a.
 
@@ -50,18 +50,18 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 # implementation details, the dependencies specified below are
 # conservative and not optimized.  This is fine as Google Test
 # compiles fast and for ordinary users its source rarely changes.
-gtest-all.o : $(GTEST_SRCS_)
+../obj/gtest-all.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
-            $(GTEST_DIR)/src/gtest-all.cc
+            $(GTEST_DIR)/src/gtest-all.cc -o ../obj/gtest-all.o
 
-gtest_main.o : $(GTEST_SRCS_)
+../obj/gtest_main.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
-            $(GTEST_DIR)/src/gtest_main.cc
+            $(GTEST_DIR)/src/gtest_main.cc -o ../obj/gtest_main.o
 
-gtest.a : gtest-all.o
+../lib/gtest.a : gtest-all.o
 	$(AR) $(ARFLAGS) $@ $^
 
-gtest_main.a : gtest-all.o gtest_main.o
+../lib/gtest_main.a : ../obj/gtest-all.o ../obj/gtest_main.o
 	$(AR) $(ARFLAGS) $@ $^
 
 # Builds a sample test.  A test should link with either gtest.a or
@@ -69,9 +69,12 @@ gtest_main.a : gtest-all.o gtest_main.o
 # function.
 
 ../obj/sample1_unittest.o : ../../src/dhcp_server.c $(GTEST_HEADERS)
-	echo "target"
 	$(CXX) -I../../inc $(CPPFLAGS) $(CXXFLAGS) -c ../src/sample1_unittest.cc -o ../obj/sample1_unittest.o
 
-sample1_unittest : ../obj/sample1_unittest.o gtest_main.a
-	echo "target"
+../bin/sample1_unittest : ../obj/sample1_unittest.o ../lib/gtest_main.a
 	$(CXX) -I../../inc ../../obj/*o $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+.folder:
+	@mkdir -p ../lib
+	@mkdir -p ../obj
+	@mkdir -p ../bin
