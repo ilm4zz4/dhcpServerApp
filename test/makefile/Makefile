@@ -12,6 +12,17 @@
 # project, except GTEST_HEADERS, which you can use in your own targets
 # but shouldn't modify.
 
+#Persona folder
+OBJs_TEST_DIR=../obj
+BIN_TEST_DIR=../bin
+LIBs_TEST_DIR=../lib
+SOURCE_CODE=../../src
+INC_CODE=../../inc
+SOURCE_TEST=../src
+
+OBJs_TEST+=$(OBJs_TEST_DIR)/sample1_unittest.o
+OBJs_TEST+=$(OBJs_TEST_DIR)/exampleTest.o
+
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
 GTEST_DIR = ../googletest
@@ -26,7 +37,7 @@ CXXFLAGS += -g -Wall -Wextra -pthread
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = ../bin/sample1_unittest
+TESTS += $(BIN_TEST_DIR)/unittest
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -38,7 +49,13 @@ GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
 all : .folder $(TESTS)
 
 clean :
-	rm -f $(TESTS) gtest.a ../lib/gtest_main.a ../obj/*.o
+	@rm -f $(TESTS) gtest.a ../lib/gtest_main.a ../obj/*.o
+	@rm -rf $(GTEST_FOLDER)/CMakeCache.txt
+	@rm -rf $(GTEST_FOLDER)/CMakeFiles/
+	@rm -rf $(GTEST_FOLDER)/Makefile
+	@rm -rf $(GTEST_FOLDER)/cmake_install.cmake
+	@rm -rf ../bin ../obj ../lib
+	@echo "Clean tests is done ... "
 
 # Builds gtest.a and gtest_main.a.
 
@@ -68,12 +85,13 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 # gtest_main.a, depending on whether it defines its own main()
 # function.
 
-../obj/sample1_unittest.o : ../../src/dhcp_server.c $(GTEST_HEADERS)
-	$(CXX) -I../../inc $(CPPFLAGS) $(CXXFLAGS) -c ../src/sample1_unittest.cc -o ../obj/sample1_unittest.o
-
-../bin/sample1_unittest : ../obj/sample1_unittest.o ../lib/gtest_main.a
+$(BIN_TEST_DIR)/unittest : $(OBJs_TEST) ../lib/gtest_main.a
 	$(CXX) -I../../inc ../../obj/*o $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+	ln -s ../test/bin/unittest  ../../bin/unittest 
 
+$(OBJs_TEST_DIR)/%.o:$(SOURCE_TEST)/%.cc 
+	$(CXX) -I../../inc -c $(CPPFLAGS) $(CXXFLAGS) -o $@  $< 
+ 
 .folder:
 	@mkdir -p ../lib
 	@mkdir -p ../obj
