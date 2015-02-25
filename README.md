@@ -1,6 +1,6 @@
 dhcpClientApp
-=============
-
+=========================
+[![Build Status](https://travis-ci.org/chesleybrown/bitbucket-codeship-status.svg?branch=develop)](https://travis-ci.org/chesleybrown/bitbucket-codeship-status)
 DHCP Server application
 
 Currenty, the project get from https://code.google.com/p/simple-dhcp-server/ is placed into master branch, my personal project is placed in develop branch.
