@@ -1,4 +1,2 @@
-cd makefile
-make 
-./bin/unittest
+cd makefile && make test && ./bin/unittest
 
