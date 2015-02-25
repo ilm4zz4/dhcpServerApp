@@ -1,0 +1,4 @@
+cd makefile
+make 
+./bin/unittest
+
