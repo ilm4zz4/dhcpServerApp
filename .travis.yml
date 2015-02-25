@@ -1,2 +1,3 @@
+language: cpp
 cd makefile && make test && ./bin/unittest
 
