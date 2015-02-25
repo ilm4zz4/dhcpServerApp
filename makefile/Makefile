@@ -37,7 +37,7 @@ clean: .folderDel
 	@$(MAKE) -C ../test/makefile $@ 
 	@echo "Clean is complete..."
 
-test: .folderAdd 
+test: all 
 	$(MAKE) -C  ../test/makefile all 
 	
 
