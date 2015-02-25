@@ -1,9 +1,8 @@
 language: cpp
-
+before_install: sudo apt-get update
 compiler:
   - gpp
-
-before_script:
-  - cd makeflie
-
-script: make test && ./bin/unitest
+script: 
+  - cd makefile 
+  - make test
+  - ./bin/unitest
