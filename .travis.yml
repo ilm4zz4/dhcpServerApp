@@ -1,3 +1,9 @@
 language: cpp
-cd makefile && make test && ./bin/unittest
 
+compiler:
+  - gpp
+
+before_script:
+  - cd makeflie
+
+script: make test && ./bin/unitest
