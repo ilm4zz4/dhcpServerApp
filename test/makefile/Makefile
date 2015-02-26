@@ -20,8 +20,7 @@ SOURCE_CODE=../../src
 INC_CODE=../../inc
 SOURCE_TEST=../src
 
-OBJs_TEST+=$(OBJs_TEST_DIR)/sample1_unittest.o
-OBJs_TEST+=$(OBJs_TEST_DIR)/exampleTest.o
+OBJs_TEST+=$(OBJs_TEST_DIR)/all-test.o
 
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
