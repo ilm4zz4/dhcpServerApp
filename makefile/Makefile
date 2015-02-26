@@ -40,6 +40,7 @@ clean: .folderDel
 test: all 
 	$(MAKE) -C  ../test/makefile all 
 	
+
 .folderAdd:
 	@mkdir -p $(FOLDER)
 
@@ -48,5 +49,4 @@ test: all
 
 $(OBJ_DIR)/%.o:$(SRC_DIR)/%.c
 	@$(CC) -MD -MF $(patsubst %.o,%.d,$@) -c $(FLAGs) -I$(INC_DIR) -o  $@  $<
-
 
