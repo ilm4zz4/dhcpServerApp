@@ -33,31 +33,20 @@ all: .folderAdd $(OBJs)
 	@echo "Building is done..."
 
 
-clean:.folderDel .generateFileDel
+clean: .folderDel
+	@$(MAKE) -C ../test/makefile $@ 
 	@echo "Clean is complete..."
 
-#test: .folderAdd $(LIB_TEST)
-#	$(CC) ../test/src/gtest-all.cc -I $(GTEST_FOLDER)/include/ -L $(LIB_DIR) -lgtest -lgtest_main -lpthread -o ../bin/test.bim
+test: all 
+	$(MAKE) -C  ../test/makefile all 
+	
 
 .folderAdd:
 	@mkdir -p $(FOLDER)
 
 .folderDel:
 	@rm -rf $(FOLDER)
-#.generateFileDel:
-#	@rm -rf $(GTEST_FOLDER)/CMakeCache.txt
-#	@rm -rf $(GTEST_FOLDER)/CMakeFiles/
-#	@rm -rf $(GTEST_FOLDER)/Makefile
-#	@rm -rf $(GTEST_FOLDER)/cmake_install.cmake
-#	@rm -rf $(GTEST_FOLDER)/libgtest.a
-#	@rm -rf $(GTEST_FOLDER)/libgtest_main.a
 
 $(OBJ_DIR)/%.o:$(SRC_DIR)/%.c
 	@$(CC) -MD -MF $(patsubst %.o,%.d,$@) -c $(FLAGs) -I$(INC_DIR) -o  $@  $<
-
-#$(LIB_TEST):
-#	bash -c 'cd $(GTEST_FOLDER) &&  cmake . && make' 
-#	@echo "lib libgtest.a and libgtest_main.a are copied into lib folder"
-#	@cp $(GTEST_FOLDER)/libgtest.a $(LIB_DIR) 
-#	@cp $(GTEST_FOLDER)/libgtest_main.a $(LIB_DIR) 
 
