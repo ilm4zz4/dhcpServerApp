@@ -1,7 +1,5 @@
 dhcpClientApp
 =========================
-DHCP Server application
-
 Currenty, the project get from https://code.google.com/p/simple-dhcp-server/ is placed into master branch, my personal project is placed in develop branch.
 
 To run "the new" DHCP server application follow the next step:
