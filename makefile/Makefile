@@ -37,7 +37,8 @@ clean: .folderDel
 	@$(MAKE) -C ../test/makefile $@ 
 	@echo "Clean is complete..."
 
-test: all 
+test:   all 
+	git submodule update --init
 	$(MAKE) -C  ../test/makefile all 
 	
 
