@@ -20,7 +20,8 @@ SOURCE_CODE=../../src
 INC_CODE=../../inc
 SOURCE_TEST=../src
 
-OBJs_TEST+=$(OBJs_TEST_DIR)/all-test.o
+#OBJs_TEST+=$(OBJs_TEST_DIR)/all-test.o
+OBJs_TEST+=$(OBJs_TEST_DIR)/dhcp_serverTest.o
 
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
@@ -67,11 +68,11 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 # conservative and not optimized.  This is fine as Google Test
 # compiles fast and for ordinary users its source rarely changes.
 ../obj/gtest-all.o : $(GTEST_SRCS_)
-	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
+	$(CXX) -MD -MF $(patsubst %.o,%.d,$@) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
             $(GTEST_DIR)/src/gtest-all.cc -o ../obj/gtest-all.o
 
 ../obj/gtest_main.o : $(GTEST_SRCS_)
-	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
+	$(CXX) -MD -MF $(patsubst %.o,%.d,$@) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
             $(GTEST_DIR)/src/gtest_main.cc -o ../obj/gtest_main.o
 
 ../lib/gtest.a : gtest-all.o
@@ -85,12 +86,11 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 # function.
 
 $(BIN_TEST_DIR)/unittest : $(OBJs_TEST) ../lib/gtest_main.a
-	$(CXX) -I../../inc ../../obj/*o $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+	$(CXX) -MD -MF $(patsubst %.o,%.d,$@) -I../../inc ../../obj/*o $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 	ln -s ../test/bin/unittest  ../../bin/unittest 
 
 $(OBJs_TEST_DIR)/%.o:$(SOURCE_TEST)/%.cc 
-	$(CXX) -I../../inc -c $(CPPFLAGS) $(CXXFLAGS) -o $@  $< 
- 
+	$(CXX) -MD -MF $(patsubst %.o,%.d,$@) -I../../inc -c $(CPPFLAGS) $(CXXFLAGS) -o $@  $< 
 .folder:
 	@mkdir -p ../lib
 	@mkdir -p ../obj

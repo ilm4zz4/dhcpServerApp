@@ -31,6 +31,10 @@ int ip_asc2bytes(char bytes[], char* ip_address)
         return 0;
     }
 
+    if(NULL == bytes){
+        ERROR("***Var byte is invalid, ip_asc2bytes==>***");
+        return 0;
+    }
     char buff[4] = {0};
     int buff_index = 0;
     int ret = 0;
@@ -126,7 +130,7 @@ int start_server(char *config_file)
 
 	if(NULL == gobal_config.server || 0 ==  gobal_config.port || 0 ==  gobal_config.lease || 0 ==  gobal_config.renew || NULL == gobal_config.ip_allocator_file)
 	{
-		goto ERROR;
+		return -1;
 	}
 
 	DEBUG("-------DUMP GOBAL_CONFIG----------");
@@ -143,7 +147,8 @@ int start_server(char *config_file)
 	if((dhcp_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
 	{
 		FATAL("***Cannot open the socket! %s(%d)***", strerror(errno), errno);
-		goto ERROR;
+		close_socket(dhcp_socket);
+		return -1;
 	}
 
 	setsockopt(dhcp_socket, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));
@@ -156,7 +161,8 @@ int start_server(char *config_file)
 	if(bind(dhcp_socket, (struct sockaddr*)&server_address, sizeof(server_address)) < 0)
 	{
 		FATAL("***Cannot bind the socket with the address! %s(%d)***", strerror(errno), errno);
-		goto ERROR;
+	 close_socket(dhcp_socket);
+         return -1;
 	}
 	
 	socklen_t addr_len = sizeof(struct sockaddr_in);
@@ -181,13 +187,18 @@ int start_server(char *config_file)
 		pthread_t thread_id;
 		pthread_create(&thread_id, NULL, &handle_msg, (void *)msg);
 	}
-ERROR:
+	WARN("***error!*** marshall==>");
+	close_socket(dhcp_socket);
+	return -1;
+}
+
+void close_socket(int dhcp_socket){
+	
 	if(0 != dhcp_socket)
 	{
 		close(dhcp_socket);
+		dhcp_socket = 0;
 	}
-	WARN("***error!*** marshall==>");
-	return -1;
 }
 
 void *handle_msg(void *arg)
@@ -249,7 +260,6 @@ ERROR:
 			{
 				close(broadcast_socket);
 			}
-			free_packet(response);
 		}
 		else
 		{
@@ -274,13 +284,13 @@ struct dhcp_packet *dispatch(struct dhcp_packet *request)
 	if(NULL == request)
 	{
 		ERROR("***Request packet is NULL***");
-		goto ERROR;
+		return NULL;
 	}
 
 	if(BOOT_REQUEST != request->op)
 	{
 		WARN("***Packet is not send from dhcp client, ignor!***");
-		goto ERROR;
+		return NULL;
 	}
 
 	//get the dhcp packet type
@@ -300,7 +310,7 @@ struct dhcp_packet *dispatch(struct dhcp_packet *request)
 	if('\0' == type)
 	{
 		ERROR("***No dhcp message type found in the packet!***");
-		goto ERROR;
+		return NULL;
 	}
 	DEBUG("packet type=%d", type);
 	struct dhcp_packet *response = NULL;
@@ -327,9 +337,6 @@ struct dhcp_packet *dispatch(struct dhcp_packet *request)
 	
 	INFO("dispatch==>");
 	return response;
-ERROR:
-	INFO("***Error***, dispatch==>");
-	return NULL;
 }
 
 extern ip_allocator ip_allocator_handler;
@@ -733,7 +740,7 @@ struct dhcp_packet *do_release(struct dhcp_packet *request)
 	INFO("do_release==>");
 }
 
-struct dhcp_packet *do_inform(struct dhcp_packet *request)
+struct dhcp_packet* do_inform(struct dhcp_packet *request)
 {
 	INFO("==>do_inform");
     struct network_config config = {0};
@@ -917,13 +924,4 @@ struct dhcp_packet *do_decline(struct dhcp_packet *request)
 	INFO("do_decline==>");
 }
 
-//int main(int argc, char* argv[])
-//{
-//	//check args
-//	if(argc > 2){
-//	   log_init(argv[1]);
-//	   start_server(argv[2]);
-//	}else{
-//	   fprintf(stderr,"Invoce the %s with log configuration file and configuration server\n\n\t %s ../cfg/dhcp_log.conf  ../cfg/dhcp_server.conf \n\n", argv[0], argv[0]);	
-//	}
-//}
+
