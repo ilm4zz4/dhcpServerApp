@@ -65,6 +65,8 @@ void *handle_msg(void *arg);
 
 struct dhcp_packet *dispatch(struct dhcp_packet *request);
 
+void close_socket(int dhcp_socket);
+
 struct network_config
 {
 	char hardware_address[16];

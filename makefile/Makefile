@@ -39,6 +39,7 @@ clean: .folderDel
 
 test:   all 
 	git submodule update --init
+	rm -rf $(BIN_DIR)/unittest ../test/bin/unittest
 	$(MAKE) -C  ../test/makefile all 
 	
 
