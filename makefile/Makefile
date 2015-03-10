@@ -25,7 +25,7 @@ LIB_TEST+=$(LIB_DIR)/libgtest.a
 LIB_TEST+=$(LIB_DIR)/libgtest_main.a
 
 #FLAGs
-FLAGs=-g
+FLAGs=-g -fprofile-arcs -ftest-coverage
 
 #TARGET
 all: .folderAdd $(OBJs)
