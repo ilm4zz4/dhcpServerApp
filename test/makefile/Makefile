@@ -86,7 +86,7 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 # function.
 
 $(BIN_TEST_DIR)/unittest : $(OBJs_TEST) ../lib/gtest_main.a
-	$(CXX) -MD -MF $(patsubst %.o,%.d,$@) -I../../inc ../../obj/*o $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+	$(CXX) -MD -MF $(patsubst %.o,%.d,$@) -I../../inc ../../obj/*.o $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ -lgcov -coverage
 	ln -s ../test/bin/unittest  ../../bin/unittest 
 
 $(OBJs_TEST_DIR)/%.o:$(SOURCE_TEST)/%.cc 
