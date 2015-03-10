@@ -278,7 +278,7 @@ ERROR:
 	return NULL;
 }
 
-struct dhcp_packet *dispatch(struct dhcp_packet *request)
+struct dhcp_packet* dispatch(struct dhcp_packet *request)
 {	
 	INFO("==>dispatch");
 	if(NULL == request)
