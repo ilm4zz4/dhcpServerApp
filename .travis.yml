@@ -4,7 +4,6 @@ compiler:
 before_install:
   - sudo pip install cpp-coveralls
 
-script: cd makefile && make test && ../bin/unittest
-after_success:
-  - cd makefile && coveralls --exclude lib --exclude tests --gcov-options '\-lp'
+script: cd makefile && make test && ../bin/unittest && coveralls --exclude lib --exclude tests --gcov-options '\-lp'
+
 
