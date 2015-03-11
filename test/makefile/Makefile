@@ -33,7 +33,7 @@ GTEST_DIR = ../googletest
 CPPFLAGS += -isystem $(GTEST_DIR)/include
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g -Wall -Wextra -pthread
+CXXFLAGS += -g -Wall -Wextra -pthread -fprofile-arcs -ftest-coverage
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
@@ -44,6 +44,7 @@ TESTS += $(BIN_TEST_DIR)/unittest
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
 
+SYS_LIB=-lgcov -coverage
 # House-keeping build targets.
 
 all : .folder $(TESTS)
@@ -86,11 +87,12 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 # function.
 
 $(BIN_TEST_DIR)/unittest : $(OBJs_TEST) ../lib/gtest_main.a
-	$(CXX) -MD -MF $(patsubst %.o,%.d,$@) -I../../inc ../../obj/*.o $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ -lgcov -coverage
+	$(CXX) -MD -MF $(patsubst %.o,%.d,$@) -I../../inc ../../obj/*.o $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(SYS_LIB) 
 	ln -s ../test/bin/unittest  ../../bin/unittest 
 
 $(OBJs_TEST_DIR)/%.o:$(SOURCE_TEST)/%.cc 
-	$(CXX) -MD -MF $(patsubst %.o,%.d,$@) -I../../inc -c $(CPPFLAGS) $(CXXFLAGS) -o $@  $< 
+	$(CXX) -MD -MF $(patsubst %.o,%.d,$@) -I../../inc -c $(CPPFLAGS) $(CXXFLAGS) -o $@  $<  
+
 .folder:
 	@mkdir -p ../lib
 	@mkdir -p ../obj
