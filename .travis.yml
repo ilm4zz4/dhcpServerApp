@@ -6,5 +6,5 @@ before_install:
 
 script: cd makefile && make test && ../bin/unittest
 after_success:
-  - cd obj && coveralls --exclude lib --exclude tests --gcov-options '\-lp'
+  - cd makefile && coveralls --exclude lib --exclude tests --gcov-options '\-lp'
 
