@@ -1,3 +1,6 @@
 [submodule "test/googletest"]
 	path = test/gTest-1.7.0
 	url = https://git.chromium.org/git/external/googletest.git
+[submodule "coveralls-cmake"]
+	path = coveralls-cmake
+	url = https://github.com/JoakimSoderberg/coveralls-cmake.git
