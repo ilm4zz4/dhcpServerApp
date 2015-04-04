@@ -4,4 +4,4 @@ compiler:
 before_install:
   - sudo pip install cpp-coveralls
 
-script: cmake -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug -Dtest=1  && make && /bin/runUnitTests && make coveralls 
+script: cmake -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug -Dtest=1  && make && make coveralls 
