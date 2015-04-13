@@ -2,7 +2,6 @@
 #include <limits.h>
 #include "dhcp_server.h"
 #include "gtest/gtest.h"
-#include "global.h"
 
 
 // Tests factorial of negative numbers.
