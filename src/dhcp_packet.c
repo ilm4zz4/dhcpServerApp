@@ -189,7 +189,6 @@ ERROR:
 	if(NULL != packet)
 	{
 		free_packet(packet);
-		packet = NULL;
 	}
 	WARN("***error!*** marshall==>");
 	return NULL;
@@ -208,7 +207,6 @@ void free_packet(struct dhcp_packet *packet)
 	if(NULL != packet->padding)
 	{
 		free(packet->padding);
-		packet->padding = NULL;
 	}
 
 	struct dhcp_option *option = packet->options;
@@ -217,21 +215,14 @@ void free_packet(struct dhcp_packet *packet)
 		if(NULL != option->value)
 		{
 			free(option->value);
-			option->value = NULL;
 		}
 		struct dhcp_option *current = option; 
 		option = current->next;
 		
-		if (current != NULL){
-			free(current);
-			current = NULL;
-		}
+		free(current);
 	}
 
-	if (packet != NULL){
-		free(packet);
-		packet = NULL;
-	}
+	free(packet);
 	
 	INFO("free_packet==>");
 	return;
