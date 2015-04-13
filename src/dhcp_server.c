@@ -181,7 +181,10 @@ int start_server(char *config_file)
 		if(msg->length < 0)
 		{
 			WARN("***Receive data error! %s(%d)***", strerror(errno), errno);
-			free(msg);
+			if(msg != NULL){
+				free(msg);
+				msg = NULL;
+			}
 			continue;
 		}
 		pthread_t thread_id;
@@ -272,7 +275,10 @@ ERROR:
 	{
 		WARN("Can not marshall request packet from raw bytes.");
 	}
-	free(msg);
+	if(msg != NULL){
+		free(msg);
+		msg = NULL;
+	}
 	
 	INFO("handle_msg==>");
 	return NULL;
@@ -373,7 +379,7 @@ struct dhcp_packet *do_discover(struct dhcp_packet *request)
 	//options
 	//message type
 	struct dhcp_option *packet_type = (struct dhcp_option*)malloc(sizeof(struct dhcp_option));
-	if(NULL == packet_type)
+	if(NULL == packet_type )
 	{
 		free_packet(response);
 		FATAL("***Allocate memory failed! %s(%d)*** do_discover==>", strerror(errno), errno);
@@ -382,7 +388,7 @@ struct dhcp_packet *do_discover(struct dhcp_packet *request)
 	memset(packet_type, 0, sizeof(struct dhcp_option));
 	packet_type->code = DHO_DHCP_MESSAGE_TYPE;
 	packet_type->value = (char *)malloc(1);
-	if(NULL == packet_type->value)
+	if(NULL == packet_type->value && response != NULL)
 	{
 		free_packet(response);
 		FATAL("***Allocate memory failed! %s(%d)*** do_discover==>", strerror(errno), errno);
