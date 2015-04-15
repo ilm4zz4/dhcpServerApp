@@ -5,7 +5,7 @@
 
 #include "dhcp_packet.h"
 #include "dhcp_log.h"
-
+#include <stdint.h>
 char DHCP_MAGIC_COOKIE[4] = {0x63, 0x82, 0x53, 0x63};
 
 //Caller need to free the memory used for the DHCP packet 
@@ -117,10 +117,10 @@ struct dhcp_packet *marshall(char buffer[], int offset, int length)
 		}
 
 		//length
-		int len;
-		char len_buff;
+		uint8_t len;
+		uint8_t len_buff;
 		memcpy(&len_buff, packet_begin + options_offset, 1);
-		len = (int)len_buff;
+		len = len_buff;
 		options_offset++;
 		
 		DEBUG("dhcp option length=%d", len);
