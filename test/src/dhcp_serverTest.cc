@@ -293,7 +293,7 @@ uint8_t release_tmp[] = {
 	struct dhcp_packet* release_msg = marshall(msg->buff, 0, msg->length); 
   	EXPECT_NE((struct dhcp_packet*)release_msg,(struct dhcp_packet*)NULL); 
    	struct dhcp_packet* rsp = dispatch(release_msg);
-  	EXPECT_NE((struct dhcp_packet*)rsp,(struct dhcp_packet*)NULL); 
+  	EXPECT_EQ((struct dhcp_packet*)rsp,(struct dhcp_packet*)NULL); 
        	
 
 }
