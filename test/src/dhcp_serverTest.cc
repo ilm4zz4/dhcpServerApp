@@ -286,8 +286,8 @@ uint8_t release_tmp[] = {
 
 	//Release
 	memset(msg->buff, 0, sizeof(release_tmp));
-   	memcpy(msg->buff,request_tmp, sizeof(release_tmp));
-   	msg->length=sizeof(request_tmp);
+   	memcpy(msg->buff,release_tmp, sizeof(release_tmp));
+   	msg->length=sizeof(release_tmp);
 
 
 	struct dhcp_packet* release_msg = marshall(msg->buff, 0, msg->length); 
