@@ -139,7 +139,8 @@ TEST(dhcp_server, free_packet) {
 
         struct dhcp_packet* decline_msg = marshall(msg->buff, 0, msg->length);
         EXPECT_NE((struct dhcp_packet*)decline_msg,(struct dhcp_packet*)NULL);
-		        
+		free_packet(decline_msg);
+ 
 		delete msg;
 
 }
