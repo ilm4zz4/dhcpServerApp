@@ -101,47 +101,60 @@ TEST(dhcp_server, dispach) {
     EXPECT_EQ((struct dhcp_packet*)rsp,(struct dhcp_packet*)NULL); 
     
     //Inform
-        memset(msg->buff, 0, sizeof(msg->buff));
-        memcpy(msg->buff,inform_tmp, sizeof(inform_tmp));
-        msg->length=sizeof(inform_tmp);
+    memset(msg->buff, 0, sizeof(msg->buff));
+    memcpy(msg->buff,inform_tmp, sizeof(inform_tmp));
+    msg->length=sizeof(inform_tmp);
 
 
-        struct dhcp_packet* inform_msg = marshall(msg->buff, 0, msg->length);
-        EXPECT_NE((struct dhcp_packet*)inform_msg,(struct dhcp_packet*)NULL);
-        struct dhcp_packet* rspInform = dispatch(inform_msg);
-        EXPECT_NE((struct dhcp_packet*)rspInform,(struct dhcp_packet*)NULL);
+    struct dhcp_packet* inform_msg = marshall(msg->buff, 0, msg->length);
+    EXPECT_NE((struct dhcp_packet*)inform_msg,(struct dhcp_packet*)NULL);
+    struct dhcp_packet* rspInform = dispatch(inform_msg);
+    EXPECT_NE((struct dhcp_packet*)rspInform,(struct dhcp_packet*)NULL);
     
     //Decline
-        memset(msg->buff, 0, sizeof(msg->buff));
-        memcpy(msg->buff,decline_tmp, sizeof(decline_tmp));
-        msg->length=sizeof(decline_tmp);
+    memset(msg->buff, 0, sizeof(msg->buff));
+    memcpy(msg->buff,decline_tmp, sizeof(decline_tmp));
+    msg->length=sizeof(decline_tmp);
 
 
-        struct dhcp_packet* decline_msg = marshall(msg->buff, 0, msg->length);
-        EXPECT_NE((struct dhcp_packet*)decline_msg,(struct dhcp_packet*)NULL);
-        struct dhcp_packet* rspDecline = dispatch(decline_msg);
-        EXPECT_EQ((struct dhcp_packet*)rspDecline,(struct dhcp_packet*)NULL);
- 
-		delete msg;
+    struct dhcp_packet* decline_msg = marshall(msg->buff, 0, msg->length);
+    EXPECT_NE((struct dhcp_packet*)decline_msg,(struct dhcp_packet*)NULL);
+    struct dhcp_packet* rspDecline = dispatch(decline_msg);
+    EXPECT_EQ((struct dhcp_packet*)rspDecline,(struct dhcp_packet*)NULL);
+
+	delete msg;
 
 }
 
 TEST(dhcp_server, free_packet) {
-		//Packet NULL
-    	free_packet(NULL);
-
-  		struct raw_msg *msg = (raw_msg*)new uint8_t[sizeof(struct raw_msg)];   
-   		//padding NULL
-		memset(msg->buff, 0, sizeof(msg->buff));
-    	memcpy(msg->buff,decline_tmp, sizeof(decline_tmp));
-        msg->length=sizeof(decline_tmp);
-		
-
-        struct dhcp_packet* decline_msg = marshall(msg->buff, 0, msg->length);
-        EXPECT_NE((struct dhcp_packet*)decline_msg,(struct dhcp_packet*)NULL);
-		free_packet(decline_msg);
- 
-		delete msg;
-
+	//Packet NULL
+	free_packet(NULL);
+	
+	struct raw_msg *msg = (raw_msg*)new uint8_t[sizeof(struct raw_msg)];   
+	//padding NULL
+	memset(msg->buff, 0, sizeof(msg->buff));
+	memcpy(msg->buff,decline_tmp, sizeof(decline_tmp));
+	msg->length=sizeof(decline_tmp);
+	
+	
+	struct dhcp_packet* decline_msg = marshall(msg->buff, 0, msg->length);
+	EXPECT_NE((struct dhcp_packet*)decline_msg,(struct dhcp_packet*)NULL);
+	free_packet(decline_msg);
+	
+	delete msg;
+	
 }
 
+TEST(dhcp_server, handle_msg){
+
+	struct raw_msg *msg = (raw_msg*)new uint8_t[sizeof(struct raw_msg)];
+	
+	memset(msg->buff, 0, sizeof(request_tmp));
+    memcpy(msg->buff,request_tmp, sizeof(request_tmp));
+    msg->length=sizeof(request_tmp);
+
+	handle_msg(msg);
+
+	//delete msg; /*Already deleted*/
+
+}
