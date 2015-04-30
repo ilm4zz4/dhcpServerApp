@@ -83,7 +83,9 @@ if (test)
   # Unit Tests
   ##############
   add_executable(runUnitTests 
-			test/src/dhcp_serverTest.cc)
+			test/src/dhcp_serverTest.cc
+			test/src/packet.cc)
+			
 
   # Standard linking to gtest stuff.
   target_link_libraries(runUnitTests gtest gtest_main)
