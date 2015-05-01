@@ -29,12 +29,6 @@ TEST(dhcp_server, ip_asc2byte) {
 }
 
 
-TEST(dhcp_server, start_server) {
-    EXPECT_EQ(-1,start_server(NULL));
-
-    char cfg [] ={"test/cfg/dhcp_server.conf"};
-    EXPECT_EQ(-1,start_server(cfg));
-}
 
 TEST(dhcp_server, marshall) {
 
@@ -161,3 +155,11 @@ TEST(dhcp_server, handle_msg){
 	//delete msg; /*Already deleted*/
 
 }
+
+TEST(dhcp_server, start_server) {
+    EXPECT_EQ(-1,start_server(NULL));
+
+    char cfg [] ={"test/cfg/dhcp_server.conf"};
+    EXPECT_EQ(-1,start_server(cfg));
+}
+
