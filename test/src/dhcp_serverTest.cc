@@ -173,14 +173,11 @@ TEST(dhcp_server, log_init) {
    char cfg [] = {"test/cfg/dhcp_log.conf"};
    EXPECT_EQ(-1, log_init(cfg));
 	
-   char cfg1 [] = {"../test/cfg/dhcp_log.conf"};
-   EXPECT_NE(-1, log_init(cfg1));
-	
 }
 
 TEST(dhcp_server,dhcp_log) {
 		
-	char cfg [] = {"../test/cfg/dhcp_log.conf"};
+	char cfg [] = {"./test/cfg/dhcp_log.conf"};
    EXPECT_NE(-1, log_init(cfg));
 	
 	FATAL("***Test log %s(%d)*** do_discover==>", "fatal", 1);	
