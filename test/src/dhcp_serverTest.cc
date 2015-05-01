@@ -170,7 +170,7 @@ TEST(dhcp_server, log_init) {
 		
    EXPECT_EQ(-1, log_init(NULL));
 	
-   char cfg [] = {"test/cfg/dhcp_log.conf"};
+   char cfg [] = {"dhcp_log.conf"};
    EXPECT_EQ(-1, log_init(cfg));
 	
 }
