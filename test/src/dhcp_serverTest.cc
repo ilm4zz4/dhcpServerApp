@@ -158,32 +158,30 @@ TEST(dhcp_server, handle_msg){
 }
 
 TEST(dhcp_server, start_server) {
-    EXPECT_EQ(-1,start_server(NULL));
+    
+   EXPECT_EQ(-1, start_server(NULL));
 
-    char cfg [] ={"test/cfg/dhcp_server.conf"};
-    EXPECT_EQ(-1,start_server(cfg));
-
-	char cfg1 [] ={"../test/cfg/dhcp_server.conf"};
-   EXPECT_EQ(0,start_server(cfg1));
-
+   char cfg [] = {"test/cfg/dhcp_server.conf"};
+   EXPECT_EQ(-1, start_server(cfg));
+   
 }
 
 TEST(dhcp_server, log_init) {
 		
-	EXPECT_EQ(-1, log_init(NULL));
+   EXPECT_EQ(-1, log_init(NULL));
 	
-	char cfg [] = {"test/cfg/dhcp_log.conf"};
+   char cfg [] = {"test/cfg/dhcp_log.conf"};
    EXPECT_EQ(-1, log_init(cfg));
 	
-	char cfg1 [] = {"../test/cfg/dhcp_log.conf"};
-   EXPECT_EQ(0, log_init(cfg1));
+   char cfg1 [] = {"../test/cfg/dhcp_log.conf"};
+   EXPECT_NE(-1, log_init(cfg1));
 	
 }
 
 TEST(dhcp_server,dhcp_log) {
 		
 	char cfg [] = {"../test/cfg/dhcp_log.conf"};
-   EXPECT_EQ(0, log_init(cfg));
+   EXPECT_NE(-1, log_init(cfg));
 	
 	FATAL("***Test log %s(%d)*** do_discover==>", "fatal", 1);	
 	ERROR("***Test log %s(%d)*** do_discover==>", "error", 1);	
