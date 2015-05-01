@@ -163,8 +163,8 @@ TEST(dhcp_server, start_server) {
     char cfg [] ={"test/cfg/dhcp_server.conf"};
     EXPECT_EQ(-1,start_server(cfg));
 
-	char cfg [] ={"../test/cfg/dhcp_server.conf"};
-   EXPECT_EQ(0,start_server(cfg));
+	char cfg1 [] ={"../test/cfg/dhcp_server.conf"};
+   EXPECT_EQ(0,start_server(cfg1));
 
 }
 
@@ -175,8 +175,8 @@ TEST(dhcp_server, log_init) {
 	char cfg [] = {"test/cfg/dhcp_log.conf"};
    EXPECT_EQ(-1, log_init(cfg));
 	
-	char cfg [] = {"../test/cfg/dhcp_log.conf"};
-   EXPECT_EQ(0, log_init(cfg));
+	char cfg1 [] = {"../test/cfg/dhcp_log.conf"};
+   EXPECT_EQ(0, log_init(cfg1));
 	
 }
 
