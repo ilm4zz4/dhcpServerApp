@@ -1,6 +1,7 @@
 
 #include <limits.h>
 #include "dhcp_server.h"
+#include "dhcp_log.h"
 #include "gtest/gtest.h"
 
 extern uint8_t discover_tmp[300];
@@ -157,9 +158,31 @@ TEST(dhcp_server, handle_msg){
 }
 
 TEST(dhcp_server, start_server) {
-    EXPECT_EQ(-1,start_server(NULL));
+    
+   EXPECT_EQ(-1, start_server(NULL));
 
-    char cfg [] ={"test/cfg/dhcp_server.conf"};
-    EXPECT_EQ(-1,start_server(cfg));
+   char cfg [] = {"test/cfg/dhcp_server.conf"};
+   EXPECT_EQ(-1, start_server(cfg));
+   
 }
 
+TEST(dhcp_server, log_init) {
+		
+   EXPECT_EQ(-1, log_init(NULL));
+	
+   char cfg [] = {"dhcp_log.conf"};
+   EXPECT_EQ(-1, log_init(cfg));
+	
+}
+
+TEST(dhcp_server,dhcp_log) {
+		
+   char cfg [] = {"./test/cfg/dhcp_log.conf"};
+   EXPECT_NE(-1, log_init(cfg));
+	
+   FATAL("***Test log %s(%d)*** do_discover==>", "fatal", 1);	
+   ERROR("***Test log %s(%d)*** do_discover==>", "error", 1);	
+   WARN("***Test log %s(%d)*** do_discover==>", "warning", 1);	
+   DEBUG("***Test log %s(%d)*** do_discover==>", "debug", 1);	
+   INFO("***Test log %s(%d)*** do_discover==>", "info", 1);	
+}
