@@ -14,6 +14,7 @@ SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 OPTION(test "Build all tests." OFF) # Makes boolean 'test' available.
 
 SET(CMAKE_CXX_FLAGS "-fPIC -g -Wall")
+
 SET(CMAKE_COLOR_MAKEFILE ON)
 SET(CMAKE_VERBOSE_MAKEFILE OFF)
 
@@ -33,14 +34,15 @@ IF(CMAKE_USE_PTHREADS_INIT)
     SET(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-pthread")
 ENDIF()
 
-################################
-# Libraries & Executables
-################################
+#####################################
+# Libraries & Executables & Directory
+#####################################
 ADD_LIBRARY(dhcpServerApp ${LIB_SRC}) 
 
 ADD_EXECUTABLE (dhcpServerApp.bin src/main.c)
 target_link_libraries(dhcpServerApp.bin dhcpServerApp ${CMAKE_THREAD_LIBS_INIT} )
 
+file(MAKE_DIRECTORY "log")
 ################################
 #Add Coverage
 ################################
