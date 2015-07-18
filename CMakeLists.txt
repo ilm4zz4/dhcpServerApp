@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-#About project
+#About project .
 #---------------------
 SET(PROJECT_NAME dhcpServerApp)
 PROJECT (${PROJECT_NAME})
