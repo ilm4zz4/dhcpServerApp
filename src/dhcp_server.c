@@ -200,11 +200,10 @@ int start_server(char *config_file)
 			else if (0 == strcmp(buffer, CONFIG_SERVER_NAME_IFACE)) {
 				strncpy(gobal_config.nameIface, value_begin, 10);
 			}
-			if(getServMacIface(gobal_config.serverMac) != 0){
-							printf("Error get mac\n");
-			}
-
 		}	
+	}
+	if(getServMacIface(gobal_config.serverMac) != 0){
+		printf("Error get mac\n");
 	}
 	
 	fclose(file);
