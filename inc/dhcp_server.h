@@ -15,6 +15,9 @@
 #define CONFIG_LEASE_TIME		"lease_time"
 #define	CONFIG_RENEW_TIME		"renew_time"
 #define CONFIG_IP_ALLOCATOR_FILE	"ip_allocator_file"
+#define CONFIG_SERVER_NAME_IFACE	"nameIface"
+
+
 
 #ifdef __cplusplus /* If this is a C++ compiler, use C linkage */
 extern "C" {
@@ -27,6 +30,8 @@ struct server_config
 	uint32_t	lease;
 	uint32_t	renew;
 	char		ip_allocator_file[256];
+	uint8_t     serverMac[6];
+	char        nameIface[10];
 };
 
 struct raw_msg

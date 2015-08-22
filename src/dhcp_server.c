@@ -15,6 +15,8 @@
 #include <netinet/ether.h>
 #include "dhcp_server.h"
 #include "dhcp_log.h"
+#include <netdb.h>
+#include <ifaddrs.h>
 
 struct server_config gobal_config = {0};
 
@@ -30,13 +32,10 @@ struct dhcp_packet_handler gobal_packet_handler =
 /* Initialized first time "crc32()" is called. If you prefer, you can statically initialize it at compile time. */
 unsigned int crc32_table[256];
 
-/* Build auxiliary table for parallel byte-at-a-time CRC-32. */
-
-
 int getServMacIface(unsigned char *mac ) {
 	int fd;
 	struct ifreq ifr;
-	char *iface = "eth0";
+	char *iface = gobal_config.nameIface;
 	unsigned char *macTmp = NULL;
 
 	if(mac == NULL) return -1;
@@ -56,8 +55,8 @@ int getServMacIface(unsigned char *mac ) {
 		printf("Mac : %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\n", macTmp[0], macTmp[1], macTmp[2],
 				macTmp[3], macTmp[4], macTmp[5]);
 	}
-
 	close(fd);
+
 	return 0;
 
 }
@@ -198,6 +197,13 @@ int start_server(char *config_file)
 			{
 				strncpy(gobal_config.ip_allocator_file, value_begin, 256);
 			}
+			else if (0 == strcmp(buffer, CONFIG_SERVER_NAME_IFACE)) {
+				strncpy(gobal_config.nameIface, value_begin, 10);
+			}
+			if(getServMacIface(gobal_config.serverMac) != 0){
+							printf("Error get mac\n");
+			}
+
 		}	
 	}
 	
@@ -326,7 +332,8 @@ void *handle_msg(void *arg) {
 			ip->ttl = 64; // hops
 			ip->protocol = IPPROTO_UDP; // UDP
 			// Source IP address, can use spoofed address here!!!
-			ip->saddr = inet_addr("192.168.100.1");
+
+			ip->saddr =inet_addr(gobal_config.server);
 			// // The destination IP address
 			ip->daddr = inet_addr("255.255.255.255");
 			ip->frag_off = 0;
@@ -335,9 +342,7 @@ void *handle_msg(void *arg) {
 
 			/*our MAC address*/
 			unsigned char src_mac[6] = {0x00};
-			if(getServMacIface(src_mac) != 0){
-				printf("Error get mac\n");
-			}
+			memcpy(src_mac, gobal_config.serverMac,6);
 
 			/*other host MAC address*/
 			unsigned char dest_mac[6] = {0};
