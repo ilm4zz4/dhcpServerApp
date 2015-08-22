@@ -6,7 +6,13 @@
 #include<sys/socket.h>
 #include<netinet/in.h>
 #include<pthread.h>
-
+#include <linux/if_packet.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <net/if.h>
+#include <linux/ip.h>
+#include <linux/udp.h>
+#include <netinet/ether.h>
 #include "dhcp_server.h"
 #include "dhcp_log.h"
 
@@ -20,6 +26,75 @@ struct dhcp_packet_handler gobal_packet_handler =
 	.do_release		= &do_release,
 	.do_decline		= &do_decline,
 };
+
+/* Initialized first time "crc32()" is called. If you prefer, you can statically initialize it at compile time. */
+unsigned int crc32_table[256];
+
+/* Build auxiliary table for parallel byte-at-a-time CRC-32. */
+
+
+int getServMacIface(unsigned char *mac ) {
+	int fd;
+	struct ifreq ifr;
+	char *iface = "eth0";
+	unsigned char *macTmp = NULL;
+
+	if(mac == NULL) return -1;
+
+	memset(&ifr, 0, sizeof(ifr));
+
+	fd = socket(AF_INET, SOCK_DGRAM, 0);
+
+	ifr.ifr_addr.sa_family = AF_INET;
+	strncpy(ifr.ifr_name, iface, IFNAMSIZ - 1);
+
+	if (0 == ioctl(fd, SIOCGIFHWADDR, &ifr)) {
+		macTmp = (unsigned char *) ifr.ifr_hwaddr.sa_data;
+		memcpy(mac,macTmp,6);
+
+		//display mac address
+		printf("Mac : %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\n", macTmp[0], macTmp[1], macTmp[2],
+				macTmp[3], macTmp[4], macTmp[5]);
+	}
+
+	close(fd);
+	return 0;
+
+}
+
+/*unsigned short csum(unsigned short *buf, int nwords)
+ {       //
+ unsigned long sum;
+ for(sum=0; nwords>0; nwords--)
+ sum += *buf++;
+ sum = (sum >> 16) + (sum &0xffff);
+ sum += (sum >> 16);
+ return (unsigned short)(~sum);
+ }*/
+unsigned short csum(unsigned short *ptr,int nbytes)
+{
+    register long sum;
+    unsigned short oddbyte;
+    register short answer;
+
+    sum=0;
+    while(nbytes>1) {
+        sum+=*ptr++;
+        nbytes-=2;
+    }
+    if(nbytes==1) {
+        oddbyte=0;
+        *((u_char*)&oddbyte)=*(u_char*)ptr;
+        sum+=oddbyte;
+    }
+
+    sum = (sum>>16)+(sum & 0xffff);
+    sum = sum + (sum>>16);
+    answer=(short)~sum;
+
+    return(answer);
+}
+
 
 int ip_asc2bytes(char bytes[], char* ip_address)
 {
@@ -204,82 +279,131 @@ void close_socket(int dhcp_socket){
 	}
 }
 
-void *handle_msg(void *arg)
-{
+void *handle_msg(void *arg) {
 	INFO("==>handle_msg, arg=%d", arg);
-	struct raw_msg *msg = (struct raw_msg*)arg;
+
+	struct raw_msg *msg = (struct raw_msg*) arg;
 	struct dhcp_packet *request = marshall(msg->buff, 0, msg->length);
-	
-	if(NULL != request)
-	{
+
+	if (NULL != request) {
 		struct dhcp_packet *response = dispatch(request);
-		
-		if(NULL != response)
-		{
-			int broadcast_socket = 0;
-    		int so_broadcast = 1;
-			int so_reuseaddr = 1;
-    		struct sockaddr_in server_address;
 
-    		if((broadcast_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
-    		{
-        		FATAL("***Cannot open the socket! %s(%d)***", strerror(errno), errno);
-    			goto ERROR;		
-    		}
+		if (NULL != response) {
 
-    		setsockopt(broadcast_socket, SOL_SOCKET, SO_BROADCAST, &so_broadcast, sizeof(so_broadcast));
-			setsockopt(broadcast_socket, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));	
-		
-    		memset(&server_address, 0, sizeof(server_address));
-    		server_address.sin_family = AF_INET;
-    		server_address.sin_port = htons(gobal_config.port);
-    		server_address.sin_addr.s_addr = inet_addr(gobal_config.server);
+			int isocket = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 
-    		if(bind(broadcast_socket, (struct sockaddr*)&server_address, sizeof(server_address)) < 0)
-    		{
-        		FATAL("***Cannot bind the socket with the address! %s(%d)***", strerror(errno), errno);
-        		goto ERROR;
-    		}
+			/*target address*/
+			struct sockaddr_ll socket_address;
 
-			char buffer[DHCP_MAX_MTU];
-			int length = serialize(response, buffer, DHCP_MAX_MTU);
-			
-			struct sockaddr_in broadcast = {0};
-			broadcast.sin_family = AF_INET;
-			broadcast.sin_port = htons(BOOTP_REPLAY_PORT);
-			broadcast.sin_addr.s_addr = htonl(INADDR_BROADCAST);
+			/*buffer for Ethernet frame*/
+			void* buffer = (void*)malloc(ETH_FRAME_LEN);
 
-			int send_length = sendto(broadcast_socket, buffer, length, 0, (struct sockaddr*)&broadcast, sizeof(broadcast));
-			if(send_length < 0)
-			{
+			/*pointer to Ethernet header*/
+			struct ethhdr* eth_head = (struct ethhdr *)buffer;
+
+			/*pointer to IP frame*/
+			struct iphdr* ip = buffer + sizeof(struct ethhdr);
+
+			/*pointer to UDP frame*/
+			struct udphdr* udp = buffer + sizeof(struct iphdr) +  sizeof(struct ethhdr);
+
+			/*fill the udphead frame with some data*/
+			udp->source = htons(atoi("67"));
+			// Destination port number
+			udp->dest = htons(atoi("68"));
+			int length = serialize(response, (unsigned char*)udp + sizeof(struct udphdr), DHCP_MAX_MTU - sizeof(struct udphdr) + sizeof(struct iphdr) + sizeof(struct ethhdr));
+			printf("lenght: %d\n",length);
+			udp->len = htons(8 + length);
+			udp->check = 0;
+
+			/*fill the iphead frame with some data*/
+			ip->ihl = 5;
+			ip->version = 4;
+			ip->tos = 16; // Low delay
+			ip->tot_len = htons(
+					sizeof(struct iphdr) + sizeof(struct udphdr) + length);
+			ip->id = htons(54321);
+			ip->ttl = 64; // hops
+			ip->protocol = IPPROTO_UDP; // UDP
+			// Source IP address, can use spoofed address here!!!
+			ip->saddr = inet_addr("192.168.100.1");
+			// // The destination IP address
+			ip->daddr = inet_addr("255.255.255.255");
+			ip->frag_off = 0;
+			ip->check = 0;
+			ip->check = csum((unsigned short int*)ip ,sizeof(struct iphdr));
+
+			/*our MAC address*/
+			unsigned char src_mac[6] = {0x00};
+			if(getServMacIface(src_mac) != 0){
+				printf("Error get mac\n");
+			}
+
+			/*other host MAC address*/
+			unsigned char dest_mac[6] = {0};
+			memcpy(dest_mac,((struct dhcp_packet*)msg->buff)->chaddr,6);
+
+
+			/***prepare sockaddr_ll***/
+
+			/*RAW communication*/
+			socket_address.sll_family = PF_PACKET;
+			/*we don't use a protocol above Ethernet layer
+			  ->just use anything here*/
+			socket_address.sll_protocol = htons(ETH_P_IP);
+
+			/*index of the network device
+			see full code later how to retrieve it*/
+			socket_address.sll_ifindex = 2;
+
+			/*ARP hardware identifier is Ethernet*/
+			socket_address.sll_hatype = ARPHRD_ETHER;
+
+			/*target is another host*/
+			socket_address.sll_pkttype = PACKET_OTHERHOST;
+
+			/*address length*/
+			socket_address.sll_halen = ETH_ALEN;
+
+			/*MAC - begin*/
+			memcpy((unsigned char*)&socket_address.sll_addr,dest_mac,sizeof(dest_mac));
+
+
+			/*set the frame header*/
+			memcpy((void*)buffer, (void*)dest_mac, ETH_ALEN);
+			memcpy((void*)(buffer+ETH_ALEN), (void*)src_mac, ETH_ALEN);
+			eth_head->h_proto =  htons(ETH_P_IP);
+
+
+			/***send the packet***/
+			int send_result = 0;
+			send_result = sendto(isocket, buffer, sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr) + length, 0,
+				      (struct sockaddr*)&socket_address, sizeof(socket_address));
+			if (send_result == -1) { printf("ERRORE!!!!");}
+
+			if (send_result < 0) {
 				WARN("***Send data error! %s(%d)***", strerror(errno), errno);
+				printf("***Send data error! %s(%d)***", strerror(errno),errno);
+			} else {
+				DEBUG("Total %d bytes send!", send_result);
+				printf("sent  %d\n",send_result);
 			}
-			else
-			{
-				DEBUG("Total %d bytes send!", send_length);
+			ERROR: if (0 != isocket) {
+				close(isocket);
 			}
-ERROR:
-			if(0 != broadcast_socket)
-			{
-				close(broadcast_socket);
-			}
-		}
-		else
-		{
+		} else {
 			WARN("Response packet is NULL.");
 		}
-		
+
 		free_packet(request);
-	}
-	else
-	{
+	} else {
 		WARN("Can not marshall request packet from raw bytes.");
 	}
-	if(msg != NULL){
+	if (msg != NULL) {
 		free(msg);
 		msg = NULL;
 	}
-	
+
 	INFO("handle_msg==>");
 	return NULL;
 }
