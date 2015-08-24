@@ -11,7 +11,7 @@ struct log_config gobal_file_config =
 {
         .log_enabled = 0,
         .log_level = 3,
-        .log_file_dir = "./logfile",
+        .log_file_dir = "./log",
 };
 
 int log_init(char *config_file)
