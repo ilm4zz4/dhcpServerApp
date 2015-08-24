@@ -11,7 +11,7 @@ struct log_config gobal_file_config =
 {
         .log_enabled = 0,
         .log_level = 3,
-        .log_file_dir = "./log",
+        .log_file_dir = "./logfile",
 };
 
 int log_init(char *config_file)
@@ -78,7 +78,6 @@ void dhcp_log(char level, const char *source, const char *func, int line, char *
 	struct tm *tm_now = gmtime(&now); 
 	char file_path[MAX_FILE_PATH] = {0};
 	snprintf(file_path, MAX_FILE_PATH, "%s/%s_%4d-%02d-%02d.log", gobal_file_config.log_file_dir, LOG_FILE_NAME_PREFIX, tm_now->tm_year + 1900, tm_now->tm_mon + 1, tm_now->tm_mday);
-	
 	FILE *log_file = fopen(file_path, "a+");
 	
 	if(NULL == log_file)

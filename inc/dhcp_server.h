@@ -26,12 +26,13 @@ extern "C" {
 struct server_config
 {
 	char 		server[16];
+	char        nameIface[10];
 	uint16_t	port;
 	uint32_t	lease;
 	uint32_t	renew;
 	char		ip_allocator_file[256];
 	uint8_t     serverMac[6];
-	char        nameIface[10];
+
 };
 
 struct raw_msg

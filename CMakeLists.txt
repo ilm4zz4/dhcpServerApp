@@ -42,7 +42,7 @@ ADD_LIBRARY(dhcpServerApp ${LIB_SRC})
 ADD_EXECUTABLE (dhcpServerApp.bin src/main.c)
 target_link_libraries(dhcpServerApp.bin dhcpServerApp ${CMAKE_THREAD_LIBS_INIT} )
 
-file(MAKE_DIRECTORY "log")
+file(MAKE_DIRECTORY "bin/log")
 ################################
 #Add Coverage
 ################################

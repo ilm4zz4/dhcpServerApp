@@ -75,7 +75,11 @@ int sqlite_ip_allocator(struct network_config *config)
 		DEBUG("mac=%lx", mac);
 	}
 
-	DEBUG("mac address=%02x:%02x:%02x:%02x:%02x:%02x, integer value=%ld", (uint8_t)config->hardware_address[0], (uint8_t)config->hardware_address[1], (uint8_t)config->hardware_address[2], (uint8_t)config->hardware_address[3], (uint8_t)config->hardware_address[4], (uint8_t)config->hardware_address[5], mac);
+	DEBUG("mac address=%02x:%02x:%02x:%02x:%02x:%02x, integer value=%ld",
+			(uint8_t)config->hardware_address[0], (uint8_t)config->hardware_address[1],
+			(uint8_t)config->hardware_address[2], (uint8_t)config->hardware_address[3],
+			(uint8_t)config->hardware_address[4], (uint8_t)config->hardware_address[5], mac);
+
 	char sql[128] = {0};
 	snprintf(sql, 128, "select * from mac_ip where mac = %ld", mac);
 	ret = sqlite3_prepare(db, sql, 128, &statement, NULL);

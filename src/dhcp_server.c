@@ -38,7 +38,10 @@ int getServMacIface(unsigned char *mac ) {
 	char *iface = gobal_config.nameIface;
 	unsigned char *macTmp = NULL;
 
-	if(mac == NULL) return -1;
+	if(mac == NULL){
+		ERROR("==> %s, Error: MAC variable can not be NULL", __FUNCTION__);
+		return -1;
+	}
 
 	memset(&ifr, 0, sizeof(ifr));
 
@@ -52,8 +55,12 @@ int getServMacIface(unsigned char *mac ) {
 		memcpy(mac,macTmp,6);
 
 		//display mac address
-		printf("Mac : %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\n", macTmp[0], macTmp[1], macTmp[2],
+		DEBUG("==>%s, Interface MAC= %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\n", __FUNCTION__, macTmp[0], macTmp[1], macTmp[2],
 				macTmp[3], macTmp[4], macTmp[5]);
+
+	}else{
+		ERROR("Error ioctl to get mac");
+		return -1;
 	}
 	close(fd);
 
@@ -61,15 +68,6 @@ int getServMacIface(unsigned char *mac ) {
 
 }
 
-/*unsigned short csum(unsigned short *buf, int nwords)
- {       //
- unsigned long sum;
- for(sum=0; nwords>0; nwords--)
- sum += *buf++;
- sum = (sum >> 16) + (sum &0xffff);
- sum += (sum >> 16);
- return (unsigned short)(~sum);
- }*/
 unsigned short csum(unsigned short *ptr,int nbytes)
 {
     register long sum;
@@ -203,7 +201,8 @@ int start_server(char *config_file)
 		}	
 	}
 	if(getServMacIface(gobal_config.serverMac) != 0){
-		printf("Error get mac\n");
+		ERROR("==>%s, Error to get MAC", __FUNCTION__);
+
 	}
 	
 	fclose(file);
