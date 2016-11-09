@@ -73,7 +73,7 @@ endif()
 if (test)
  
   # This adds another subdirectory, which has 'project(gtest)'.
-  add_subdirectory(test/gTest-1.7.0)
+  add_subdirectory(test/gTest)
 
   enable_testing()
 
