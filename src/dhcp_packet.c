@@ -272,7 +272,7 @@ int serialize(struct dhcp_packet *packet, char buffer[], int length)
 	
 	if(packet_len > length)
 	{
-		ERROR("Buffer size is less than packet length, buffer size=%d, packet length=%d", sizeof(buffer), packet_len);
+		ERROR("Buffer size is less than packet length, buffer size=%d, packet length=%d", length, packet_len);
 		INFO("==>serialize");
 		return 0;
 	}

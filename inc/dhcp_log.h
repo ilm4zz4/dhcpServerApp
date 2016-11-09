@@ -15,7 +15,7 @@
 
 #define CONDIF_LOG_ENABLED		"log_enabled"
 #define	CONFIG_LOG_LEVEL 		"log_level"
-#define CONFIG_LOG_FILE_DIR 	"log_file"
+#define CONFIG_LOG_FILE_DIR 	"log_file_dir"
 
 #define CONFIG_BUFFER_SIZE	1024
 #define LOG_BUFFER_SIZE		4096	//4KB
