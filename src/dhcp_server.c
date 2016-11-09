@@ -6,10 +6,13 @@
 #include<sys/socket.h>
 #include<netinet/in.h>
 #include<pthread.h>
+#include <fcntl.h> // for open
+#include <unistd.h> // for close
+#include <arpa/inet.h> //inet_addr
 
 #include "dhcp_server.h"
 #include "dhcp_log.h"
-
+#define BUFF_SIZE 5
 struct server_config gobal_config = {0};
 
 struct dhcp_packet_handler gobal_packet_handler = 
@@ -35,7 +38,7 @@ int ip_asc2bytes(char bytes[], char* ip_address)
         ERROR("***Var byte is invalid, ip_asc2bytes==>***");
         return 0;
     }
-    char buff[4] = {0};
+    char buff[BUFF_SIZE] = {0};
     int buff_index = 0;
     int ret = 0;
     int i = 0;
@@ -43,7 +46,7 @@ int ip_asc2bytes(char bytes[], char* ip_address)
     {
         if('.' == ip_address[i])
         {
-            buff[4] = '\0';
+            buff[BUFF_SIZE-1] = '\0';
             bytes[ret++] = atoi(buff);
             memset(buff, 0, 4);
             buff_index = 0;
@@ -176,9 +179,9 @@ int start_server(char *config_file)
 		}
 		memset(msg, 0, sizeof(struct raw_msg));
 		msg->socket_fd = dhcp_socket;
-		msg->length = recvfrom(dhcp_socket, msg->buff, DHCP_MAX_MTU, 0, (struct sockaddr*)&msg->address, &addr_len);
+		int32_t rcv_size= recvfrom(dhcp_socket, msg->buff, DHCP_MAX_MTU, 0, (struct sockaddr*)&msg->address, &addr_len);
 		DEBUG("%d bytes received", msg->length);
-		if(msg->length < 0)
+		if(rcv_size < 0)
 		{
 			WARN("***Receive data error! %s(%d)***", strerror(errno), errno);
 			if(msg != NULL){
@@ -187,6 +190,8 @@ int start_server(char *config_file)
 			}
 			continue;
 		}
+
+		msg->length = (uint32_t) rcv_size; 
 		pthread_t thread_id;
 		pthread_create(&thread_id, NULL, &handle_msg, (void *)msg);
 	}
