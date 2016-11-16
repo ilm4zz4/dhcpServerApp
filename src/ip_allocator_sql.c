@@ -4,10 +4,11 @@
 
 #include "dhcp_log.h"
 #include "dhcp_server.h"
+#include "ip_allocator.h"
 
 extern struct server_config gobal_config;
 
-int initDB(){
+int init_database(){
 	
 	INFO("==>sqlite_ip_allocate");
 	sqlite3 *db = NULL;
@@ -53,8 +54,10 @@ int initDB(){
     sqlite3_close(db);
 }
 
+
 int sqlite_ip_allocator(struct network_config *config)
 {
+	
 	INFO("==>sqlite_ip_allocate");
 	sqlite3 *db = NULL;
 
@@ -63,8 +66,24 @@ int sqlite_ip_allocator(struct network_config *config)
         {
                 ERROR("***sqlite3_open ERROR!!! %s(%d)***", sqlite3_errmsg(db), ret);
                 goto ERROR;
-        }	
-
+        }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	sqlite3_stmt *statement = NULL;
 
 	//get gateway, netmask, dns1 & dns2

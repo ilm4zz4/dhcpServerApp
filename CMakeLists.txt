@@ -34,13 +34,21 @@ IF(CMAKE_USE_PTHREADS_INIT)
     SET(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-pthread")
 ENDIF()
 
+FIND_PATH(SQLITE3_INCLUDE_DIR sqlite3.h)
+FIND_LIBRARY(SQLITE3_LIBRARY sqlite3)
+IF(NOT SQLITE3_INCLUDE_DIR)
+		  MESSAGE(SEND_ERROR "Failed to find sqlite3.h")
+ENDIF()
+IF(NOT SQLITE3_LIBRARY)
+		  MESSAGE(SEND_ERROR "Failed to find the sqlite3 library")
+ENDIF()
 #####################################
 # Libraries & Executables & Directory
 #####################################
 ADD_LIBRARY(dhcpServerApp ${LIB_SRC}) 
 
 ADD_EXECUTABLE (dhcpServerApp.bin src/main.c)
-target_link_libraries(dhcpServerApp.bin dhcpServerApp ${CMAKE_THREAD_LIBS_INIT} )
+target_link_libraries(dhcpServerApp.bin dhcpServerApp ${CMAKE_THREAD_LIBS_INIT} ${SQLITE3_LIBRARY} )
 
 file(MAKE_DIRECTORY "log")
 ################################
@@ -86,7 +94,9 @@ if (test)
   ##############
   add_executable(runUnitTests 
 			test/src/dhcp_serverTest.cc
-			test/src/packet.cc)
+			test/src/packet.cc
+			test/src/ip_allocator.cc)
+
 			
 
   # Standard linking to gtest stuff.
