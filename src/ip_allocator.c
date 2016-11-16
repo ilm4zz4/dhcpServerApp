@@ -17,7 +17,7 @@ int sqlite_ip_allocator(struct network_config *config)
 	char asc_dns2[16] = {0};
 	char asc_ip_address[16] = {0};
 
-	char value1[16] = {"192.168.25.1"};
+	char value1[16] = {"192.168.75.1"};
 	strncpy(asc_gateway, value1, 16);
 
         char value2[16] = {"255.255.255.0"};
@@ -29,7 +29,7 @@ int sqlite_ip_allocator(struct network_config *config)
 	char value4[16] = {"4.4.4.4"};
         strncpy(asc_dns2, value4, 16);
 
-	char value[16] = {"192.168.25.10"};
+	char value[16] = {"192.168.75.10"};
         strncpy(asc_ip_address, value, 16);
 
 
