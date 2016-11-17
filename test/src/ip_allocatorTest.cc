@@ -1,9 +1,9 @@
-#include "gtest/gtest.h"
 #include "dhcp_log.h"
 #include "dhcp_server.h"
+#include "gtest/gtest.h"
 #include "ip_allocator.h"
+#include "sqlite3.h"
 
-#include <sqlite3.h>
 // Tests factorial of negative numbers.
 TEST(ip_allocator, init) {
     

@@ -1,7 +1,7 @@
 
 #include <limits.h>
-#include "dhcp_server.h"
 #include "dhcp_log.h"
+#include "dhcp_server.h"
 #include "gtest/gtest.h"
 
 extern uint8_t discover_tmp[300];

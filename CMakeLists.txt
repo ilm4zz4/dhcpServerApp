@@ -25,8 +25,6 @@ SET(LIB_SRC
 		${PROJECT_SOURCE_DIR}/src/dhcp_server.c 
 		${PROJECT_SOURCE_DIR}/src/dhcp_log.c 
 		${PROJECT_SOURCE_DIR}/src/ip_allocator.c 
-		${PROJECT_SOURCE_DIR}/src/dhcp_server.c 
-		${PROJECT_SOURCE_DIR}/src/ip_allocator.c 
 		${PROJECT_SOURCE_DIR}/src/dhcp_packet.c)
 SET(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 FIND_PACKAGE(Threads REQUIRED)
@@ -34,23 +32,17 @@ IF(CMAKE_USE_PTHREADS_INIT)
     SET(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-pthread")
 ENDIF()
 
-FIND_PATH(SQLITE3_INCLUDE_DIR sqlite3.h)
-FIND_LIBRARY(SQLITE3_LIBRARY sqlite3)
-IF(NOT SQLITE3_INCLUDE_DIR)
-		  MESSAGE(SEND_ERROR "Failed to find sqlite3.h")
-ENDIF()
-IF(NOT SQLITE3_LIBRARY)
-		  MESSAGE(SEND_ERROR "Failed to find the sqlite3 library")
-ENDIF()
+add_subdirectory(sqlite3)
+
 #####################################
 # Libraries & Executables & Directory
 #####################################
 ADD_LIBRARY(dhcpServerApp ${LIB_SRC}) 
 
 ADD_EXECUTABLE (dhcpServerApp.bin src/main.c)
-target_link_libraries(dhcpServerApp.bin dhcpServerApp ${CMAKE_THREAD_LIBS_INIT} ${SQLITE3_LIBRARY} )
+TARGET_LINK_LIBRARIES(dhcpServerApp.bin dhcpServerApp ${CMAKE_THREAD_LIBS_INIT} ${SQLITE3_LIBRARIES}  )
 
-file(MAKE_DIRECTORY "log")
+FILE(MAKE_DIRECTORY "log")
 ################################
 #Add Coverage
 ################################
@@ -87,7 +79,7 @@ if (test)
 
   # Include the gtest library. gtest_SOURCE_DIR is available due to
   # 'project(gtest)' above.
-  include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+  include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${SQLITE3_INCLUDE_DIRS})
 
   ##############
   # Unit Tests
@@ -95,15 +87,12 @@ if (test)
   add_executable(runUnitTests 
 			test/src/dhcp_serverTest.cc
 			test/src/packet.cc
-			test/src/ip_allocator.cc)
+			test/src/ip_allocatorTest.cc)
 
 			
 
   # Standard linking to gtest stuff.
-  target_link_libraries(runUnitTests gtest gtest_main)
-
-  # Extra linking for the project.
-  target_link_libraries(runUnitTests dhcpServerApp)
+  target_link_libraries(runUnitTests gtest gtest_main dhcpServerApp ${SQLITE3_LIBRARIES})
 
   # This is so you can do 'make test' to see all your tests run, instead of
   # manually running the executable runUnitTests to see those specific tests.
