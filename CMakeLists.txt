@@ -92,7 +92,7 @@ if (test)
 			
 
   # Standard linking to gtest stuff.
-  target_link_libraries(runUnitTests gtest gtest_main dhcpServerApp ${SQLITE3_LIBRARIES})
+  target_link_libraries(runUnitTests gtest ${SQLITE3_LIBRARIES} dhcpServerApp )
 
   # This is so you can do 'make test' to see all your tests run, instead of
   # manually running the executable runUnitTests to see those specific tests.
