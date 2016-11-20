@@ -13,7 +13,7 @@ SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 # Options. Turn on with 'cmake -Dmyvarname=ON'.
 OPTION(test "Build all tests." OFF) # Makes boolean 'test' available.
 
-SET(CMAKE_CXX_FLAGS "-fPIC -g -Wall")
+SET(CMAKE_CXX_FLAGS "-fPIC -g -Wall -g")
 
 SET(CMAKE_COLOR_MAKEFILE ON)
 SET(CMAKE_VERBOSE_MAKEFILE OFF)
@@ -72,6 +72,8 @@ endif()
 ################################
 if (test)
  
+  set(CMAKE_C_FLAGS_DEBUG "-DTEST")
+
   # This adds another subdirectory, which has 'project(gtest)'.
   add_subdirectory(test/gTest)
 
@@ -92,7 +94,7 @@ if (test)
 			
 
   # Standard linking to gtest stuff.
-  target_link_libraries(runUnitTests gtest ${SQLITE3_LIBRARIES} dhcpServerApp )
+  target_link_libraries(runUnitTests gtest gtest_main ${SQLITE3_LIBRARIES} dhcpServerApp )
 
   # This is so you can do 'make test' to see all your tests run, instead of
   # manually running the executable runUnitTests to see those specific tests.

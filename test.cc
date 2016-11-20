@@ -17,12 +17,12 @@ int main(void) {
     }
     
     char *sql = "DROP TABLE IF EXISTS Network;" 
-                "CREATE TABLE Network(IP TETXT, MAC TEXT, MASK TEXT, GW TEXT, DNS);" 
-                "INSERT INTO Network VALUES('192.168.22.12', '112233445566', '24', '255.255.255.0', '8.8.8.8');" 
-                "INSERT INTO Network VALUES('192.168.22.13', '332233445566', '24', '255.255.255.0', '8.8.8.8');" 
-                "INSERT INTO Network VALUES('192.168.22.14', 'BB2233445566', '24', '255.255.255.0', '8.8.8.8');" 
-                "INSERT INTO Network VALUES('192.168.22.15', 'CC2233445566', '24', '255.255.255.0', '8.8.8.8');" 
-                "INSERT INTO Network VALUES('192.168.22.16', 'DD2233445566', '24', '255.255.255.0', '8.8.8.8');"; 
+                "CREATE TABLE Network(MAC TEXT, IP TETXT,  MASK TEXT, GW TEXT, DNS);" 
+                "INSERT INTO Network VALUES('112233445566',192.168.22.12',  '24', '255.255.255.0', '8.8.8.8');" 
+                "INSERT INTO Network VALUES('332233445566',192.168.22.13',  '24', '255.255.255.0', '8.8.8.8');" 
+                "INSERT INTO Network VALUES('BB2233445566',192.168.22.14',  '24', '255.255.255.0', '8.8.8.8');" 
+                "INSERT INTO Network VALUES('CC2233445566',192.168.22.15',  '24', '255.255.255.0', '8.8.8.8');" 
+                "INSERT INTO Network VALUES('DD2233445566',192.168.22.16',  '24', '255.255.255.0', '8.8.8.8');"; 
 
     rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
     

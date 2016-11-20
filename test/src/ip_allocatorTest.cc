@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #include "dhcp_log.h"
 #include "dhcp_server.h"
 #include "gtest/gtest.h"
@@ -7,15 +9,22 @@
 // Tests factorial of negative numbers.
 TEST(ip_allocator, init) {
 
-   INFO("==>sqlite_ip_allocate");
    sqlite3 *db = NULL;
    char *err_msg = 0;
    sqlite3_stmt *statement = NULL;
+	char fileName[]={"test.db"};
 
-   int ret = sqlite3_open("DB.sql", &db);
-   if(SQLITE_OK != ret)
+   //create database 
+   bool succ = create_database(fileName);
+   EXPECT_EQ(succ, true);
+	if(succ==false)
+			  exit(1);
+
+   //Fill databese 
+   int sql_ret = sqlite3_open(fileName, &db);
+   if(SQLITE_OK != sql_ret)
    {
-      ERROR("***sqlite3_open ERROR!!! %s(%d)***", sqlite3_errmsg(db), ret);
+      ERROR("***sqlite3_open ERROR!!! %s(%d)***", sqlite3_errmsg(db), sql_ret);
       exit (1);
    }
 
@@ -24,17 +33,15 @@ TEST(ip_allocator, init) {
    //IP: ip address which shall be assigned to host
    //ACTIVE: the ip is already assign
    //MASK, GW, DNS: configuration client
-   char *sql = "DROP TABLE IF EXISTS Network;"
-                "CREATE TABLE Network( MAC TEXT, IP TETXT, ACTIVE INT, MASK TEXT, GW TEXT, DNS);"
-                "ADD TABLE Network VALUES( 'AABBCCDDEEFF', '192.168.0.1', 1, '24', '192.169.1.1', '8.8.8.8');"
-                "ADD TABLE Network VALUES( 'AABBCCDDEEFF', '192.168.0.1', 1, '24', '192.169.1.1', '8.8.8.8');"
-                "ADD TABLE Network VALUES( 'AABBCCDDEEFF', '192.168.0.1', 1, '24', '192.169.1.1', '8.8.8.8');"
-                "ADD TABLE Network VALUES( 'AABBCCDDEEFF', '192.168.0.1', 0, '24', '192.169.1.1', '8.8.8.8');"
-                "ADD TABLE Network VALUES( 'AABBCCDDEEFF', '192.168.0.1', 1, '24', '192.169.1.1', '8.8.8.8');";
+   char *sql ="INSERT INTO Network VALUES( 'AABBCCDDEEFF', '192.168.0.1', 1, '24', '192.169.1.1', '8.8.8.8');"
+                "INSERT INTO Network VALUES( 'AABBCCDDEEFF', '192.168.0.1', 1, '24', '192.169.1.1', '8.8.8.8');"
+                "INSERT INTO Network VALUES( 'AABBCCDDEEFF', '192.168.0.1', 1, '24', '192.169.1.1', '8.8.8.8');"
+                "INSERT INTO Network VALUES( 'AABBCCDDEEFF', '192.168.0.1', 0, '24', '192.169.1.1', '8.8.8.8');"
+                "INSERT INTO Network VALUES( 'AABBCCDDEEFF', '192.168.0.1', 1, '24', '192.169.1.1', '8.8.8.8');";
 
-   int rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
-   EXPECT_EQ(rc, SQLITE_OK );
-   if (rc != SQLITE_OK ) {
+   sql_ret = sqlite3_exec(db, sql, 0, 0, &err_msg);
+   EXPECT_EQ(sql_ret, SQLITE_OK );
+   if (sql_ret != SQLITE_OK ) {
 
       sqlite3_free(err_msg);
       sqlite3_close(db);
@@ -42,30 +49,31 @@ TEST(ip_allocator, init) {
    }
 
    //Check the current ACTIVE flag
-   ret = sqlite3_prepare(db, "SELECT COUNT(*) FROM Network WHERE ACTIVE=1",128, &statement, NULL);
-   EXPECT_EQ(SQLITE_OK, ret);
-   if(SQLITE_OK != ret){
-      fprintf(stderr, "***sqlite3_prepare: get all entryes ERROR!!! %s(%d)***", err_msg);
+   sql_ret = sqlite3_prepare(db, "SELECT COUNT(*) FROM Network WHERE ACTIVE=1",128, &statement, NULL);
+   EXPECT_EQ(SQLITE_OK, sql_ret);
+   if(SQLITE_OK != sql_ret){
+      fprintf(stderr, "***sqlite3_prepare: get all entryes ERROR!!! %s(%d)***", err_msg,sql_ret);
       exit (1);
    }
    sqlite3_step(statement);
    int value = sqlite3_column_int(statement,0);
-   EXPECT_EQ(value, 4);
+   sqlite3_finalize(statement);
+   
+	EXPECT_EQ(value, 4);
 
-   reset_database();
+ 	reset_database(db);
 
    //Check the correct replace of the 'active' flag
-   ret = sqlite3_prepare(db, "SELECT COUNT(*) FROM Network WHERE ACTIVE=1",128, &statement, NULL);
-   EXPECT_EQ(SQLITE_OK, ret);
-   if(SQLITE_OK != ret){
-      fprintf(stderr, "***sqlite3_prepare: get all entryes ERROR!!! %s(%d)***", err_msg);
+   sql_ret = sqlite3_prepare(db, "SELECT COUNT(*) FROM Network WHERE ACTIVE=1",128, &statement, NULL);
+   EXPECT_EQ(SQLITE_OK, sql_ret);
+   if(SQLITE_OK != sql_ret){
+      fprintf(stderr, "***sqlite3_prepare: get all entryes ERROR!!! %s(%d)***", err_msg, sql_ret);
       exit (1);
    }
    sqlite3_step(statement);
    value = sqlite3_column_int(statement,0);
-   EXPECT_EQ(value, 0);
-
    sqlite3_finalize(statement);
+   EXPECT_EQ(value, 0);
 
    sqlite3_close(db);
 }

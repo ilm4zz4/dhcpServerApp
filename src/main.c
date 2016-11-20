@@ -19,4 +19,6 @@ int main(int argc, char* argv[])
 	}else{
 	   fprintf(stderr,"Invoce the %s with log configuration file and configuration server\n\n\t %s ../cfg/dhcp_log.conf  ../cfg/dhcp_server.conf \n\n", argv[0], argv[0]);	
 	}
+
+	   fprintf(stderr,"exit application\n\n");	
 }

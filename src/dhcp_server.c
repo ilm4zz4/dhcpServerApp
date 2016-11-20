@@ -9,9 +9,11 @@
 #include <fcntl.h> // for open
 #include <unistd.h> // for close
 #include <arpa/inet.h> //inet_addr
+#include <stdbool.h>
 
 #include "dhcp_server.h"
 #include "dhcp_log.h"
+#include "ip_allocator.h"
 #define BUFF_SIZE 5
 struct server_config gobal_config = {0};
 
@@ -131,6 +133,12 @@ int start_server(char *config_file)
 	
 	fclose(file);
 
+	if(create_database(gobal_config.ip_allocator_file) == false){
+
+		FATAL("*** Cannot create database! ***");
+		return false;
+	}
+	
 	if(NULL == gobal_config.server || 0 ==  gobal_config.port || 0 ==  gobal_config.lease || 0 ==  gobal_config.renew || NULL == gobal_config.ip_allocator_file)
 	{
 		return -1;
