@@ -77,7 +77,7 @@ struct network_config
 	char dns2[4];
 };
 
-typedef int (*ip_allocator)(struct network_config *);
+typedef int (*ip_allocator)(char* dbName, struct network_config *);
 
 #ifdef __cplusplus /* If this is a C++ compiler, end C linkage */
 }

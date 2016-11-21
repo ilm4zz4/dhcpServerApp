@@ -13,7 +13,7 @@ SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 # Options. Turn on with 'cmake -Dmyvarname=ON'.
 OPTION(test "Build all tests." OFF) # Makes boolean 'test' available.
 
-SET(CMAKE_CXX_FLAGS "-fPIC -g -Wall -g")
+SET(CMAKE_CXX_FLAGS "-fPIC -Wall -g")
 
 SET(CMAKE_COLOR_MAKEFILE ON)
 SET(CMAKE_VERBOSE_MAKEFILE OFF)
@@ -29,7 +29,7 @@ SET(LIB_SRC
 SET(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 FIND_PACKAGE(Threads REQUIRED)
 IF(CMAKE_USE_PTHREADS_INIT)
-    SET(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-pthread")
+    SET(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-g -pthread")
 ENDIF()
 
 add_subdirectory(sqlite3)

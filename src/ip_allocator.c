@@ -18,15 +18,15 @@ sqlite3* open_database(char* fileName){
    if(SQLITE_OK != ret)
    {
       ERROR("***sqlite3_open ERROR!!! %s(%d)***", sqlite3_errmsg(db), ret);
-     return NULL; 
+     return NULL;
    }
    return db;
 }
 
 bool close_database(sqlite3* db){
-	
+
    int rc = sqlite3_close(db);
-   
+
    if (rc != SQLITE_OK ) {
       return false;
    }
@@ -42,7 +42,7 @@ int reset_database(sqlite3 *db){
 
    ret = sqlite3_prepare(db, "UPDATE Network SET ACTIVE=0 WHERE ACTIVE=1 ;",128, &statement, NULL);
    if(SQLITE_OK != ret){
-        fprintf(stderr, "***sqlite3_prepare: get all entryes ERROR!!! %s(%d)***", err_msg, ret);
+        fprintf(stderr, "***sqlite3_prepare: error database !!! %s(%d)***", err_msg, ret);
     	return false;
    }
 	sqlite3_step(statement);
@@ -57,7 +57,7 @@ int create_database(char* fileName){
    char *err_msg = 0;
    sqlite3_stmt *statement = NULL;
 
-	
+
    sqlite3 *db = open_database(fileName);
 	if(db == NULL){
 			  return false;
@@ -68,16 +68,20 @@ int create_database(char* fileName){
    //ACTIVE: the ip is already assign
    //MASK, GW, DNS: configuration client
    char *sql = "DROP TABLE IF EXISTS Network;"
-                "CREATE TABLE Network( MAC TEXT, IP TETXT,  MASK TEXT, GW TEXT, DNS, ACTIVE INT,);";
+                "CREATE TABLE Network( MAC TEXT, IP TETXT,  MASK TEXT, GW TEXT, DNS, ACTIVE INT);";
+                //"INSERT INTO Network VALUES('b8:27:eb:8b:33:e0','192.168.75.12', '255.255.255.0', '192.168.75.1', '8.8.8.8', 0);";
 
    int rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
    sqlite3_free(err_msg);
-  
+
 	if(reset_database(db) != true){
+    ERROR("*** reset_database ERROR!!!");
 		return false;
 	}
-	if (close_database(db) != true )
-			  return false;
+	if (close_database(db) != true ){
+    ERROR("*** reset_database ERROR!!!");
+		return false;
+  }
 
 	return true;
 }
@@ -85,6 +89,10 @@ int create_database(char* fileName){
 int sqlite_ip_allocator(char* dbName, struct network_config *config)
 {
 
+if(dbName == NULL || config == NULL){
+  ERROR("db: %#010x, config: %#010x", dbName, config);
+  return -1;
+}
 
 	sqlite3* db = open_database(dbName);
    sqlite3_stmt* statement = NULL;
@@ -92,10 +100,10 @@ int sqlite_ip_allocator(char* dbName, struct network_config *config)
 	memset(query,0,sizeof(query));
 
 	sprintf(query,"SELECT * FROM Network WHERE MAC = %02x:%02x:%02x:%02x:%02x:%02x" ,
-	           config->hardware_address[0], 
-              config->hardware_address[1], 
-              config->hardware_address[2], 
-              config->hardware_address[3], 
+	           config->hardware_address[0],
+              config->hardware_address[1],
+              config->hardware_address[2],
+              config->hardware_address[3],
               config->hardware_address[4],
               config->hardware_address[5]);
 	fprintf(stderr,"\n%s\n",query);
@@ -105,47 +113,26 @@ int sqlite_ip_allocator(char* dbName, struct network_config *config)
     exit (1);
    }
    ret =sqlite3_step(statement);
-		  
-	char asc_gateway[16] = {0};
+   if(ret != SQLITE_ROW){
+     return -1;
+   }
+	 char asc_gateway[16] = {0};
 	char asc_netmask[16] = {0};
    char asc_dns1[16] = {0};
 	char asc_dns2[16] = {0};
 	char asc_ip_address[16] = {0};
 
-	//char value1[16] = {"192.168.25.1"};
 
-   // char value2[16] = {"255.255.255.0"};
+   strncpy(asc_ip_address, sqlite3_column_text(statement,1), 16);
+   strncpy(asc_netmask, sqlite3_column_text(statement,2), 16);
+	strncpy(asc_gateway, sqlite3_column_text(statement,3), 16);
+	strncpy(asc_dns1, sqlite3_column_text(statement,4), 16);
+   strncpy(asc_dns2, sqlite3_column_text(statement,4), 16);
 
-
-	//char value3[16] = {"8.8.8.8"};
-
-	//char value4[16] = {"4.4.4.4"};
-
-	//char value[16] = {"192.168.25.10"};
-   strncpy(asc_ip_address, sqlite3_column_text(statement,0), 16);
-   strncpy(asc_netmask, sqlite3_column_text(statement,0), 16);
-	strncpy(asc_gateway, sqlite3_column_text(statement,0), 16);
-	strncpy(asc_dns1, sqlite3_column_text(statement,0), 16);
-   strncpy(asc_dns2, sqlite3_column_text(statement,0), 16);
-
+   sqlite3_finalize(statement);
 	close_database(db);
 
-
-
 	INFO("gateway=%s, netmask=%s, dns1=%s, dns2=%s, ip=%s", asc_gateway, asc_netmask, asc_dns1, asc_dns2, asc_ip_address);
-
-	//convert mac address to 64-bit int.
-	//the first 6 bytes of network_config.hardware_address
-	//should be mac address.
-	uint64_t mac = 0x0000000000000000;
-	int i = 0;
-	for(i = 0; i < 6; i++)
-	{
-		mac *= 0x100;
-//		DEBUG("mac=%lx", mac);
-		mac += (uint8_t)config->hardware_address[i];
-//		DEBUG("mac=%lx", mac);
-	}
 
 	DEBUG("mac address=%02x:%02x:%02x:%02x:%02x:%02x, \
 	       integer value=%ld", \
@@ -154,7 +141,7 @@ int sqlite_ip_allocator(char* dbName, struct network_config *config)
                (uint8_t)config->hardware_address[2], \
                (uint8_t)config->hardware_address[3], \
                (uint8_t)config->hardware_address[4],
-               (uint8_t)config->hardware_address[5], mac);
+               (uint8_t)config->hardware_address[5]);
 
 	ip_asc2bytes(config->router, asc_gateway);
 	ip_asc2bytes(config->netmask, asc_netmask);

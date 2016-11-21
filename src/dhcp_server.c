@@ -17,7 +17,7 @@
 #define BUFF_SIZE 5
 struct server_config gobal_config = {0};
 
-struct dhcp_packet_handler gobal_packet_handler = 
+struct dhcp_packet_handler gobal_packet_handler =
 {
 	.do_discover	= &do_discover,
 	.do_inform		= &do_inform,
@@ -74,6 +74,7 @@ int start_server(char *config_file)
 	INFO("==>start_server, config_file=%s", config_file);
 	//parse configuration file
 	FILE *file = fopen(config_file, "r");
+
 	if(NULL == file)
 	{
 		FATAL("***Cannot open config_file!***, start_server==>");
@@ -84,7 +85,7 @@ int start_server(char *config_file)
 	while(!feof(file))
 	{
 		if(NULL != fgets(buffer, CONFIG_BUFFER_SIZE, file))
-		{	
+		{
 			DEBUG("read line from config file: %s", buffer);
 			int index = 0;
 			for(; '\0' != buffer[index] && '=' != buffer[index]; index++);
@@ -93,7 +94,7 @@ int start_server(char *config_file)
 			{
 				continue;
 			}
-			
+
 			buffer[index] = '\0';
 			char *value_begin = buffer + index + 1;
 			int value_length = strlen(value_begin);
@@ -101,10 +102,10 @@ int start_server(char *config_file)
 			{
 				value_begin[value_length - 1] = '\0';
 			}
-			
+
 			if(0 == strcmp(buffer, CONFIG_SERVER_ADDRESS))
 			{
-				strncpy(gobal_config.server, value_begin, 16);	
+				strncpy(gobal_config.server, value_begin, 16);
 			}
 			else if(0 == strcmp(buffer, CONFIG_LISTEN_PORT))
 			{
@@ -128,19 +129,19 @@ int start_server(char *config_file)
 			{
 				strncpy(gobal_config.ip_allocator_file, value_begin, 256);
 			}
-		}	
+		}
 	}
-	
+
 	fclose(file);
 
 	if(create_database(gobal_config.ip_allocator_file) == false){
-
 		FATAL("*** Cannot create database! ***");
 		return false;
 	}
-	
+
 	if(NULL == gobal_config.server || 0 ==  gobal_config.port || 0 ==  gobal_config.lease || 0 ==  gobal_config.renew || NULL == gobal_config.ip_allocator_file)
 	{
+	    fprintf(stderr, "problem");
 		return -1;
 	}
 
@@ -150,7 +151,7 @@ int start_server(char *config_file)
 	DEBUG("gobal_config.lease=%d", gobal_config.lease);
 	DEBUG("gobal_config.renew=%d", gobal_config.renew);
 	DEBUG("-----------------END--------------");
-	
+
 	int dhcp_socket = 0;
 	int so_reuseaddr = 1;
 	struct sockaddr_in server_address;
@@ -163,7 +164,7 @@ int start_server(char *config_file)
 	}
 
 	setsockopt(dhcp_socket, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));
-	
+
 	memset(&server_address, 0, sizeof(server_address));
 	server_address.sin_family = AF_INET;
 	server_address.sin_port = htons(gobal_config.port);
@@ -175,7 +176,7 @@ int start_server(char *config_file)
 	 close_socket(dhcp_socket);
          return -1;
 	}
-	
+
 	socklen_t addr_len = sizeof(struct sockaddr_in);
 	while(1)
 	{
@@ -199,7 +200,7 @@ int start_server(char *config_file)
 			continue;
 		}
 
-		msg->length = (uint32_t) rcv_size; 
+		msg->length = (uint32_t) rcv_size;
 		pthread_t thread_id;
 		pthread_create(&thread_id, NULL, &handle_msg, (void *)msg);
 	}
@@ -209,7 +210,7 @@ int start_server(char *config_file)
 }
 
 void close_socket(int dhcp_socket){
-	
+
 	if(0 != dhcp_socket)
 	{
 		close(dhcp_socket);
@@ -222,11 +223,11 @@ void *handle_msg(void *arg)
 	INFO("==>handle_msg, arg=%d", arg);
 	struct raw_msg *msg = (struct raw_msg*)arg;
 	struct dhcp_packet *request = marshall(msg->buff, 0, msg->length);
-	
+
 	if(NULL != request)
 	{
 		struct dhcp_packet *response = dispatch(request);
-		
+
 		if(NULL != response)
 		{
 			int broadcast_socket = 0;
@@ -237,12 +238,12 @@ void *handle_msg(void *arg)
     		if((broadcast_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
     		{
         		FATAL("***Cannot open the socket! %s(%d)***", strerror(errno), errno);
-    			goto ERROR;		
+    			goto ERROR;
     		}
 
     		setsockopt(broadcast_socket, SOL_SOCKET, SO_BROADCAST, &so_broadcast, sizeof(so_broadcast));
-			setsockopt(broadcast_socket, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));	
-		
+			setsockopt(broadcast_socket, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));
+
     		memset(&server_address, 0, sizeof(server_address));
     		server_address.sin_family = AF_INET;
     		server_address.sin_port = htons(gobal_config.port);
@@ -256,7 +257,7 @@ void *handle_msg(void *arg)
 
 			char buffer[DHCP_MAX_MTU];
 			int length = serialize(response, buffer, DHCP_MAX_MTU);
-			
+
 			struct sockaddr_in broadcast = {0};
 			broadcast.sin_family = AF_INET;
 			broadcast.sin_port = htons(BOOTP_REPLAY_PORT);
@@ -281,7 +282,7 @@ ERROR:
 		{
 			WARN("Response packet is NULL.");
 		}
-		
+
 		free_packet(request);
 	}
 	else
@@ -292,13 +293,13 @@ ERROR:
 		free(msg);
 		msg = NULL;
 	}
-	
+
 	INFO("handle_msg==>");
 	return NULL;
 }
 
 struct dhcp_packet* dispatch(struct dhcp_packet *request)
-{	
+{
 	INFO("==>dispatch");
 	if(NULL == request)
 	{
@@ -322,7 +323,7 @@ struct dhcp_packet* dispatch(struct dhcp_packet *request)
 			type = *option->value;
 			break;
 		}
-		
+
 		option = option->next;
 	}
 
@@ -353,7 +354,7 @@ struct dhcp_packet* dispatch(struct dhcp_packet *request)
 		default:
 			break;
 	}
-	
+
 	INFO("dispatch==>");
 	return response;
 }
@@ -365,8 +366,8 @@ struct dhcp_packet *do_discover(struct dhcp_packet *request)
 	INFO("==>do_discover");
 	struct network_config config = {0};
 	memcpy(config.hardware_address, request->chaddr, 16);
-	
-	if(ip_allocator_handler(&config) < 0)
+
+	if(ip_allocator_handler(gobal_config.ip_allocator_file, &config) < 0)
 	{
 		WARN("Cannot assign IP address! do_discover==>");
 		return NULL;
@@ -388,7 +389,7 @@ struct dhcp_packet *do_discover(struct dhcp_packet *request)
 	memcpy(response->yiaddr, config.ip_address, 4);
 	memcpy(response->flags, request->flags, 2);
 	memcpy(response->chaddr, request->chaddr, 16);
-	
+
 	//options
 	//message type
 	struct dhcp_option *packet_type = (struct dhcp_option*)malloc(sizeof(struct dhcp_option));
@@ -537,7 +538,7 @@ struct dhcp_packet *do_discover(struct dhcp_packet *request)
 	memcpy(dns_server->value + 4, config.dns2, 4);
     dns_server->length = 8;
     subnet_mask->next = dns_server;
-	
+
 	INFO("do_discover==>");
 	return response;
 }
@@ -547,16 +548,16 @@ struct dhcp_packet *do_request(struct dhcp_packet *request)
 	INFO("==>do_request");
 	struct network_config config = {0};
 	memcpy(config.hardware_address, request->chaddr, 16);
-	
-	if(ip_allocator_handler(&config) < 0)
+
+	if(ip_allocator_handler(gobal_config.ip_allocator_file, &config) < 0)
 	{
 		WARN("Cannot assign IP address! do_request==>");
 		return NULL;
 	}
-	
+
 	char type = DHCP_ACK;
 	char requested_address[4] = {0};
-	
+
 	if(0 != memcmp(requested_address, request->ciaddr, 4))
 	{
 		INFO("request->ciaddr is not 0, copy it to request_address");
@@ -573,17 +574,17 @@ struct dhcp_packet *do_request(struct dhcp_packet *request)
 				memcpy(requested_address, option->value, 4);
 				break;
 			}
-			
+
 			option = option->next;
 		}
 	}
-	
+
 	if(0 != memcmp(config.ip_address, requested_address, 4))
 	{
 		WARN("request_address is not the same as IP assigned, change packet type to NAK");
 		type = DHCP_NAK;
 	}
-	
+
 	struct dhcp_packet *response = (struct dhcp_packet*)malloc(sizeof(struct dhcp_packet));
 	memset(response, 0, sizeof(struct dhcp_packet));
 
@@ -595,7 +596,7 @@ struct dhcp_packet *do_request(struct dhcp_packet *request)
 	memcpy(response->yiaddr, requested_address, 4);
 	memcpy(response->flags, request->flags, 2);
 	memcpy(response->chaddr, request->chaddr, 16);
-	
+
 	if(DHCP_ACK == type)
 	{
 		//options
@@ -747,7 +748,7 @@ struct dhcp_packet *do_request(struct dhcp_packet *request)
 		dns_server->length = 8;
 		subnet_mask->next = dns_server;
 	}
-	
+
 	INFO("do_request==>");
 	return response;
 }
@@ -764,8 +765,8 @@ struct dhcp_packet* do_inform(struct dhcp_packet *request)
 	INFO("==>do_inform");
     struct network_config config = {0};
 	memcpy(config.hardware_address, request->chaddr, 16);
-	
-	if(ip_allocator_handler(&config) < 0)
+
+	if(ip_allocator_handler(gobal_config.ip_allocator_file, &config) < 0)
 	{
 		WARN("Cannot assign IP address! do_inform==>");
 		return NULL;
@@ -782,7 +783,7 @@ struct dhcp_packet* do_inform(struct dhcp_packet *request)
 	memcpy(response->yiaddr, config.ip_address, 4);
 	memcpy(response->flags, request->flags, 2);
 	memcpy(response->chaddr, request->chaddr, 16);
-	
+
 	//options
 	//message type
 	struct dhcp_option *packet_type = (struct dhcp_option*)malloc(sizeof(struct dhcp_option));
@@ -931,7 +932,7 @@ struct dhcp_packet* do_inform(struct dhcp_packet *request)
 	memcpy(dns_server->value + 4, config.dns2, 4);
     dns_server->length = 8;
     subnet_mask->next = dns_server;
-	
+
 	INFO("do_inform==>");
 	return response;
 }
@@ -942,5 +943,3 @@ struct dhcp_packet *do_decline(struct dhcp_packet *request)
     return NULL;
 	INFO("do_decline==>");
 }
-
-
