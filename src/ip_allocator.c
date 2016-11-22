@@ -68,8 +68,9 @@ int create_database(char* fileName){
    //ACTIVE: the ip is already assign
    //MASK, GW, DNS: configuration client
    char *sql = "DROP TABLE IF EXISTS Network;"
-                "CREATE TABLE Network( MAC TEXT, IP TETXT,  MASK TEXT, GW TEXT, DNS, ACTIVE INT);";
-                //"INSERT INTO Network VALUES('b8:27:eb:8b:33:e0','192.168.75.12', '255.255.255.0', '192.168.75.1', '8.8.8.8', 0);";
+                "CREATE TABLE Network( MAC TEXT, IP TETXT,  MASK TEXT, GW TEXT, DNS, ACTIVE INT);"
+                "INSERT INTO Network VALUES('b8:27:eb:8b:33:e0','192.168.75.12', '255.255.255.0', '192.168.75.1', '8.8.8.8', 0);"
+                "INSERT INTO Network VALUES('b8:27:eb:8b:33:e1','192.168.75.12', '255.255.255.0', '192.168.75.1', '8.8.8.8', 0);";
 
    int rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
    sqlite3_free(err_msg);
@@ -100,22 +101,23 @@ if(dbName == NULL || config == NULL){
 	memset(query,0,sizeof(query));
 
 	sprintf(query,"SELECT * FROM Network WHERE MAC = %02x:%02x:%02x:%02x:%02x:%02x" ,
-	           config->hardware_address[0],
-              config->hardware_address[1],
-              config->hardware_address[2],
-              config->hardware_address[3],
-              config->hardware_address[4],
-              config->hardware_address[5]);
+              ((config->hardware_address[0])&(0xFF)),
+              ((config->hardware_address[1])&(0xFF)),
+              ((config->hardware_address[2])&(0xFF)),
+              ((config->hardware_address[3])&(0xFF)),
+              ((config->hardware_address[4])&(0xFF)),
+              ((config->hardware_address[5])&(0xFF)));
 	fprintf(stderr,"\n%s\n",query);
    int ret = sqlite3_prepare(db, query, 128, &statement, NULL);
    if(SQLITE_OK != ret){
-    printf("Error prepare");
-    exit (1);
+    printf("Error prepare\n");
+    return -1;
    }
    ret =sqlite3_step(statement);
    if(ret != SQLITE_ROW){
      return -1;
    }
+   ret =sqlite3_finalize(statement);
 	 char asc_gateway[16] = {0};
 	char asc_netmask[16] = {0};
    char asc_dns1[16] = {0};

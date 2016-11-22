@@ -5,8 +5,13 @@
 #ifdef __cplusplus /* If this is a C++ compiler, use C linkage */
 extern "C" {
 #endif
-int reset_database(sqlite3 *db);
-int create_database(char* fileName);
+
+  int reset_database(sqlite3 *db);
+
+  #ifdef TEST
+    int create_database(char* fileName);
+  #endif
+
 #ifdef __cplusplus /* If this is a C++ compiler, end C linkage */
 }
 #endif

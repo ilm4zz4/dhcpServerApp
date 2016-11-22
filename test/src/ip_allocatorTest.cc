@@ -14,13 +14,13 @@ TEST(ip_allocator, init) {
    sqlite3_stmt *statement = NULL;
 	char fileName[]={"test.db"};
 
-   //create database 
+   //create database
    bool succ = create_database(fileName);
    EXPECT_EQ(succ, true);
 	if(succ==false)
 			  exit(1);
 
-   //Fill databese 
+   //Fill databese
    int sql_ret = sqlite3_open(fileName, &db);
    if(SQLITE_OK != sql_ret)
    {
@@ -33,12 +33,9 @@ TEST(ip_allocator, init) {
    //IP: ip address which shall be assigned to host
    //ACTIVE: the ip is already assign
    //MASK, GW, DNS: configuration client
-   char *sql ="INSERT INTO Network VALUES( 'AABBCCDDEEFF', '192.168.0.1', 1, '24', '192.169.1.1', '8.8.8.8');"
-                "INSERT INTO Network VALUES( 'AABBCCDDEEFF', '192.168.0.1', 1, '24', '192.169.1.1', '8.8.8.8');"
-                "INSERT INTO Network VALUES( 'AABBCCDDEEFF', '192.168.0.1', 1, '24', '192.169.1.1', '8.8.8.8');"
-                "INSERT INTO Network VALUES( 'AABBCCDDEEFF', '192.168.0.1', 0, '24', '192.169.1.1', '8.8.8.8');"
-                "INSERT INTO Network VALUES( 'AABBCCDDEEFF', '192.168.0.1', 1, '24', '192.169.1.1', '8.8.8.8');";
 
+   char *sql ="";//"INSERT INTO Network VALUES( 'b8:27:eb:8b:33:e7', '192.168.0.1', '255.255.255.0', '192.169.75.1', '8.8.8.8', 0);"
+              //"INSERT INTO Network VALUES( 'b8:27:eb:8b:33:e5', '192.168.0.1', '255.255.255.0', '192.169.75.1', '8.8.8.8', 0);";
    sql_ret = sqlite3_exec(db, sql, 0, 0, &err_msg);
    EXPECT_EQ(sql_ret, SQLITE_OK );
    if (sql_ret != SQLITE_OK ) {
@@ -58,7 +55,7 @@ TEST(ip_allocator, init) {
    sqlite3_step(statement);
    int value = sqlite3_column_int(statement,0);
    sqlite3_finalize(statement);
-   
+
 	EXPECT_EQ(value, 4);
 
  	reset_database(db);
