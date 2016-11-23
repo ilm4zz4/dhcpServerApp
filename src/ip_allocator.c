@@ -96,11 +96,12 @@ if(dbName == NULL || config == NULL){
 }
 
 	sqlite3* db = open_database(dbName);
+  fprintf(stderr,"\nDB name: %s\n",dbName);
    sqlite3_stmt* statement = NULL;
 	char query[128];
 	memset(query,0,sizeof(query));
 
-	sprintf(query,"SELECT * FROM Network WHERE MAC = %02x:%02x:%02x:%02x:%02x:%02x" ,
+	sprintf(query,"SELECT * FROM Network WHERE MAC = '%02x:%02x:%02x:%02x:%02x:%02x'" ,
               ((config->hardware_address[0])&(0xFF)),
               ((config->hardware_address[1])&(0xFF)),
               ((config->hardware_address[2])&(0xFF)),
@@ -117,7 +118,7 @@ if(dbName == NULL || config == NULL){
    if(ret != SQLITE_ROW){
      return -1;
    }
-   ret =sqlite3_finalize(statement);
+
 	 char asc_gateway[16] = {0};
 	char asc_netmask[16] = {0};
    char asc_dns1[16] = {0};
