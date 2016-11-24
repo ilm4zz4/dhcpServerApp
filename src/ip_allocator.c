@@ -42,7 +42,7 @@ int reset_database(sqlite3 *db){
 
    ret = sqlite3_prepare(db, "UPDATE Network SET ACTIVE=0 WHERE ACTIVE=1 ;",128, &statement, NULL);
    if(SQLITE_OK != ret){
-        fprintf(stderr, "***sqlite3_prepare: error database !!! %s(%d)***", err_msg, ret);
+        ERROR ("*** sqlite3_prepare: error database !!! %s(%d)***", err_msg, ret);
     	return false;
    }
 	sqlite3_step(statement);
@@ -72,7 +72,7 @@ int create_database(char* fileName){
                 "INSERT INTO Network VALUES('b8:27:eb:8b:33:e0','192.168.75.12', '255.255.255.0', '192.168.75.1', '8.8.8.8', 0);"
                 "INSERT INTO Network VALUES('b8:27:eb:8b:33:e1','192.168.75.12', '255.255.255.0', '192.168.75.1', '8.8.8.8', 0);";
 
-   int rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
+   sqlite3_exec(db, sql, 0, 0, &err_msg);
    sqlite3_free(err_msg);
 
 	if(reset_database(db) != true){
@@ -94,10 +94,13 @@ if(dbName == NULL || config == NULL){
   ERROR("db: %#010x, config: %#010x", dbName, config);
   return -1;
 }
+	if(dbName == NULL){
+		ERROR("data base name ('%s') is not found ", dbName);
+		return -1;
+	}
 
 	sqlite3* db = open_database(dbName);
-  fprintf(stderr,"\nDB name: %s\n",dbName);
-   sqlite3_stmt* statement = NULL;
+   	sqlite3_stmt* statement = NULL;
 	char query[128];
 	memset(query,0,sizeof(query));
 
@@ -108,31 +111,48 @@ if(dbName == NULL || config == NULL){
               ((config->hardware_address[3])&(0xFF)),
               ((config->hardware_address[4])&(0xFF)),
               ((config->hardware_address[5])&(0xFF)));
-	fprintf(stderr,"\n%s\n",query);
-   int ret = sqlite3_prepare(db, query, 128, &statement, NULL);
-   if(SQLITE_OK != ret){
-    printf("Error prepare\n");
-    return -1;
-   }
-   ret =sqlite3_step(statement);
-   if(ret != SQLITE_ROW){
-     return -1;
-   }
+   	
+	int ret = sqlite3_prepare(db, query, 128, &statement, NULL);
+   	if(SQLITE_OK != ret){
+    	ERROR("Prepare failed");
+		return -1;
+   	}
 
-	 char asc_gateway[16] = {0};
+   	ret =sqlite3_step(statement);
+   	if(ret != SQLITE_ROW){
+		INFO("Address is not present into the database");
+     	return -1;
+   	}
+
+	char asc_gateway[16] = {0};
 	char asc_netmask[16] = {0};
-   char asc_dns1[16] = {0};
+   	char asc_dns1[16] = {0};
 	char asc_dns2[16] = {0};
 	char asc_ip_address[16] = {0};
 
 
-   strncpy(asc_ip_address, sqlite3_column_text(statement,1), 16);
-   strncpy(asc_netmask, sqlite3_column_text(statement,2), 16);
+   	strncpy(asc_ip_address, sqlite3_column_text(statement,1), 16);
+   	strncpy(asc_netmask, sqlite3_column_text(statement,2), 16);
 	strncpy(asc_gateway, sqlite3_column_text(statement,3), 16);
 	strncpy(asc_dns1, sqlite3_column_text(statement,4), 16);
-   strncpy(asc_dns2, sqlite3_column_text(statement,4), 16);
+   	strncpy(asc_dns2, sqlite3_column_text(statement,4), 16);
 
-   sqlite3_finalize(statement);
+   	sqlite3_finalize(statement);
+
+	//Set "Active" the address found
+	
+	sprintf(query,"UPDATE Network SET ACTIVE=1 WHERE MAC = '%02x:%02x:%02x:%02x:%02x:%02x'" ,
+              ((config->hardware_address[0])&(0xFF)),
+              ((config->hardware_address[1])&(0xFF)),
+              ((config->hardware_address[2])&(0xFF)),
+              ((config->hardware_address[3])&(0xFF)),
+              ((config->hardware_address[4])&(0xFF)),
+              ((config->hardware_address[5])&(0xFF)));
+
+   	char *err_msg = 0;
+   	sqlite3_exec(db, query, 0, 0, &err_msg);
+   	sqlite3_free(err_msg);
+	
 	close_database(db);
 
 	INFO("gateway=%s, netmask=%s, dns1=%s, dns2=%s, ip=%s", asc_gateway, asc_netmask, asc_dns1, asc_dns2, asc_ip_address);

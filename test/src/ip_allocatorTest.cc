@@ -34,8 +34,9 @@ TEST(ip_allocator, init) {
    //ACTIVE: the ip is already assign
    //MASK, GW, DNS: configuration client
 
-   char *sql ="";//"INSERT INTO Network VALUES( 'b8:27:eb:8b:33:e7', '192.168.0.1', '255.255.255.0', '192.169.75.1', '8.8.8.8', 0);"
-              //"INSERT INTO Network VALUES( 'b8:27:eb:8b:33:e5', '192.168.0.1', '255.255.255.0', '192.169.75.1', '8.8.8.8', 0);";
+   char *sql ="INSERT INTO Network VALUES( 'b8:27:eb:8b:33:e7', '192.168.0.1', '255.255.255.0', '192.169.75.1', '8.8.8.8', 1);"
+              "INSERT INTO Network VALUES( 'b8:27:eb:8b:33:e5', '192.168.0.1', '255.255.255.0', '192.169.75.1', '8.8.8.8', 1);"
+              "INSERT INTO Network VALUES( 'b8:27:eb:8b:33:e5', '192.168.0.1', '255.255.255.0', '192.169.75.1', '8.8.8.8', 0);";
    sql_ret = sqlite3_exec(db, sql, 0, 0, &err_msg);
    EXPECT_EQ(sql_ret, SQLITE_OK );
    if (sql_ret != SQLITE_OK ) {
@@ -56,7 +57,7 @@ TEST(ip_allocator, init) {
    int value = sqlite3_column_int(statement,0);
    sqlite3_finalize(statement);
 
-	EXPECT_EQ(value, 4);
+	EXPECT_EQ(value, 2);
 
  	reset_database(db);
 
