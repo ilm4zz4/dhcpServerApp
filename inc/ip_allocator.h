@@ -9,6 +9,7 @@ extern "C" {
   int reset_database(sqlite3 *db);
   sqlite3* open_database(char* fileName);
   bool close_database(sqlite3* db);
+  int read_configFile(char *config_file);
 
 #ifdef __cplusplus /* If this is a C++ compiler, end C linkage */
 }

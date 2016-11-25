@@ -15,7 +15,19 @@ extern uint8_t release_tmp[300];
 extern uint8_t inform_tmp[247];
 extern uint8_t decline_tmp[247];
 
+
+extern struct server_config gobal_config;
+
 // Tests factorial of negative numbers.
+TEST(dhcp_server, read_configFile) {
+    // This test is named "Negative", and belongs to the "FactorialTest"
+    // test case.
+    int ret = read_configFile("test/cfg/dhcp_server.conf");
+    if( ret < 0){
+      EXPECT_NE(ret, -1);
+    }
+}
+
 TEST(dhcp_server, ip_asc2byte) {
     // This test is named "Negative", and belongs to the "FactorialTest"
     // test case.
@@ -41,7 +53,11 @@ TEST(dhcp_server, marshall) {
 
 TEST(dhcp_server, dispach) {
 
-  char fileName[]="test.db";
+  int ret = read_configFile("./cfg/dhcp_server.conf");
+  if( ret < 0){
+    EXPECT_NE(ret, -1);
+  }
+  char* fileName = gobal_config.ip_allocator_file;
   sqlite3* db = NULL;
   //create database
   bool succ = create_database(fileName, &db);

@@ -15,6 +15,7 @@
 #include "dhcp_log.h"
 #include "ip_allocator.h"
 #define BUFF_SIZE 5
+
 struct server_config gobal_config = {0};
 
 struct dhcp_packet_handler gobal_packet_handler =
@@ -69,9 +70,7 @@ int ip_asc2bytes(char bytes[], char* ip_address)
     return ret;
 }
 
-int start_server(char *config_file)
-{
-	INFO("==>start_server, config_file=%s", config_file);
+int read_configFile(char *config_file){
 	//parse configuration file
 	FILE *file = fopen(config_file, "r");
 
@@ -120,19 +119,28 @@ int start_server(char *config_file)
 				gobal_config.lease = atoi(value);
 			}
 			else if(0 == strcmp(buffer, CONFIG_RENEW_TIME))
-            {
-                char value[11] = {0} ;
-                strncpy(value, value_begin , 11);
-                gobal_config.renew = atoi(value);
-            }
+						{
+								char value[11] = {0} ;
+								strncpy(value, value_begin , 11);
+								gobal_config.renew = atoi(value);
+						}
 			else if(0 == strcmp(buffer, CONFIG_IP_ALLOCATOR_FILE))
 			{
 				strncpy(gobal_config.ip_allocator_file, value_begin, 256);
 			}
 		}
 	}
-
+	INFO("==>%s, config_file=%s", __FUNCTION__,config_file);
 	fclose(file);
+
+}
+
+int start_server(char *config_file)
+{
+
+	if(read_configFile(config_file) < 0){
+		return -1;
+	}
 
 	if(open_database(gobal_config.ip_allocator_file) == false){
 		FATAL("*** Cannot open/create database! ***");
