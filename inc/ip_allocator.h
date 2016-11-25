@@ -7,10 +7,8 @@ extern "C" {
 #endif
 
   int reset_database(sqlite3 *db);
-
-  #ifdef TEST
-    int create_database(char* fileName);
-  #endif
+  sqlite3* open_database(char* fileName);
+  bool close_database(sqlite3* db);
 
 #ifdef __cplusplus /* If this is a C++ compiler, end C linkage */
 }

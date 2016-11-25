@@ -134,8 +134,8 @@ int start_server(char *config_file)
 
 	fclose(file);
 
-	if(create_database(gobal_config.ip_allocator_file) == false){
-		FATAL("*** Cannot create database! ***");
+	if(open_database(gobal_config.ip_allocator_file) == false){
+		FATAL("*** Cannot open/create database! ***");
 		return false;
 	}
 

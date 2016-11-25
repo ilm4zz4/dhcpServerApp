@@ -21,10 +21,10 @@ SET(CMAKE_VERBOSE_MAKEFILE OFF)
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
 INCLUDE_DIRECTORIES (inc)
-SET(LIB_SRC 
-		${PROJECT_SOURCE_DIR}/src/dhcp_server.c 
-		${PROJECT_SOURCE_DIR}/src/dhcp_log.c 
-		${PROJECT_SOURCE_DIR}/src/ip_allocator.c 
+SET(LIB_SRC
+		${PROJECT_SOURCE_DIR}/src/dhcp_server.c
+		${PROJECT_SOURCE_DIR}/src/dhcp_log.c
+		${PROJECT_SOURCE_DIR}/src/ip_allocator.c
 		${PROJECT_SOURCE_DIR}/src/dhcp_packet.c)
 SET(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 FIND_PACKAGE(Threads REQUIRED)
@@ -37,7 +37,7 @@ add_subdirectory(sqlite3)
 #####################################
 # Libraries & Executables & Directory
 #####################################
-ADD_LIBRARY(dhcpServerApp ${LIB_SRC}) 
+ADD_LIBRARY(dhcpServerApp ${LIB_SRC})
 
 ADD_EXECUTABLE (dhcpServerApp.bin src/main.c)
 TARGET_LINK_LIBRARIES(dhcpServerApp.bin dhcpServerApp ${CMAKE_THREAD_LIBS_INIT} ${SQLITE3_LIBRARIES}  )
@@ -53,7 +53,7 @@ option(COVERALLS_UPLOAD "Upload the generated coveralls json" ON)
 
 
 MESSAGE(INFO  ${PROJECT_SOURCE_DIR}/coveralls-cmake/cmake)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
                 ${PROJECT_SOURCE_DIR}/coveralls-cmake/cmake)
 if (COVERALLS)
         include(Coveralls)
@@ -62,8 +62,8 @@ endif()
 
 if (COVERALLS)
         coveralls_setup(
-        "${LIB_SRC}" 
-        ${COVERALLS_UPLOAD}                 
+        "${LIB_SRC}"
+        ${COVERALLS_UPLOAD}
         "${PROJECT_SOURCE_DIR}/coveralls-cmake/cmake")
 endif()
 
@@ -71,7 +71,7 @@ endif()
 # Testing
 ################################
 if (test)
- 
+
   set(CMAKE_C_FLAGS_DEBUG "-DTEST")
 
   # This adds another subdirectory, which has 'project(gtest)'.
@@ -86,12 +86,14 @@ if (test)
   ##############
   # Unit Tests
   ##############
-  add_executable(runUnitTests 
+  add_executable(runUnitTests
 			test/src/dhcp_serverTest.cc
 			test/src/packet.cc
-			test/src/ip_allocatorTest.cc)
+			test/src/ip_allocatorTest.cc
+			test/src/test_function.cc
+			)
 
-			
+
 
   # Standard linking to gtest stuff.
   target_link_libraries(runUnitTests gtest gtest_main ${SQLITE3_LIBRARIES} dhcpServerApp )
@@ -99,5 +101,6 @@ if (test)
   # This is so you can do 'make test' to see all your tests run, instead of
   # manually running the executable runUnitTests to see those specific tests.
   add_test(NAME ip_asc2byte COMMAND runUnitTests)
+	add_test(NAME dispach COMMAND runUnitTests)
 
 endif()
