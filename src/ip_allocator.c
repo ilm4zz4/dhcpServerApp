@@ -113,17 +113,26 @@ if(dbName == NULL || config == NULL){
 	strncpy(asc_dns1, sqlite3_column_text(statement,4), 16);
    	strncpy(asc_dns2, sqlite3_column_text(statement,4), 16);
 
-   	sqlite3_finalize(statement);
+	  sqlite3_finalize(statement);
+
+    ip_asc2bytes(config->ip_address, asc_ip_address);
+    ip_asc2bytes(config->router, asc_gateway);
+    ip_asc2bytes(config->netmask, asc_netmask);
+    ip_asc2bytes(config->dns1, asc_dns1);
+    ip_asc2bytes(config->dns2, asc_dns2);
+
+
+
 
 	//Set "Active" the address found
 
-	sprintf(query,"UPDATE Network SET ACTIVE=1 WHERE MAC = '%02x:%02x:%02x:%02x:%02x:%02x'" ,
+	/*printf(query,"UPDATE Network SET ACTIVE=1 WHERE MAC = '%02x:%02x:%02x:%02x:%02x:%02x'\n" ,
               ((config->hardware_address[0])&(0xFF)),
               ((config->hardware_address[1])&(0xFF)),
               ((config->hardware_address[2])&(0xFF)),
               ((config->hardware_address[3])&(0xFF)),
               ((config->hardware_address[4])&(0xFF)),
-              ((config->hardware_address[5])&(0xFF)));
+              ((config->hardware_address[5])&(0xFF)));*/
 
    	char *err_msg = 0;
    	sqlite3_exec(db, query, 0, 0, &err_msg);
@@ -142,11 +151,6 @@ if(dbName == NULL || config == NULL){
                (uint8_t)config->hardware_address[4],
                (uint8_t)config->hardware_address[5]);
 
-	ip_asc2bytes(config->router, asc_gateway);
-	ip_asc2bytes(config->netmask, asc_netmask);
-	ip_asc2bytes(config->dns1, asc_dns1);
-	ip_asc2bytes(config->dns2, asc_dns2);
-	ip_asc2bytes(config->ip_address, asc_ip_address);
 
 	return 0;
 }

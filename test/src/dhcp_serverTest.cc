@@ -53,7 +53,7 @@ TEST(dhcp_server, marshall) {
 
 TEST(dhcp_server, dispach) {
 
-  int ret = read_configFile("./cfg/dhcp_server.conf");
+  int ret = read_configFile("./test/cfg/dhcp_server.conf");
   if( ret < 0){
     EXPECT_NE(ret, -1);
   }
